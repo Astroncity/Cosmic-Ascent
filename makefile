@@ -1,6 +1,6 @@
 # Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -L lib/ -I include/ -lraylib -lm
+CFLAGS = -Wall -Wextra -Werror -Wno-unused -std=c99 -g -L lib/ -I include/ -lraylib -lm
 
 # Directories
 SRC_DIR = src

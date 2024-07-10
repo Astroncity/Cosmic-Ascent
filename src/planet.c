@@ -2,17 +2,55 @@
 #include "defs.h"
 #include "raylib.h"
 #include <math.h>
+#include <stdarg.h>
 #include <stdio.h>
 
 Color grassCl = {99 * 1.25, 171 * 1.25, 63 * 1.25, 255};
 Color swampcl = {47 * 1.25, 87 * 1.25, 83 * 1.25, 255};
 Color water = {98, 164 * 1.25, 184 * 1.25, 255};
 
-f32 planetScale = 5;
-f32 atmosScale = 1.05;
+f32 globalPlanetScale = 1;
+f32 atmosScale = 1.1;
+
+inline Color clampColor(i32 r, i32 g, i32 b, i32 a) {
+    Color newColor;
+    newColor.r = MIN(MAX(r, 0), 255);
+    newColor.g = MIN(MAX(g, 0), 255);
+    newColor.b = MIN(MAX(b, 0), 255);
+    newColor.a = MIN(MAX(a, 0), 255);
+
+    return newColor;
+}
+
+Color averageColors(i32 count, ...) {
+    va_list colors;
+    va_start(colors, count);
+
+    i32 r = 0;
+    i32 g = 0;
+    i32 b = 0;
+    i32 a = 0;
+
+    for (i32 i = 0; i < count; i++) {
+        Color c = va_arg(colors, Color);
+        r += c.r;
+        g += c.g;
+        b += c.b;
+        a += c.a;
+    }
+
+    va_end(colors);
+
+    r /= count;
+    g /= count;
+    b /= count;
+    a /= count;
+
+    return (Color){r, g, b, a};
+}
 
 // Convert RGB to HSL
-void RGBtoHSL(Color color, f32 *h, f32 *s, f32 *l) {
+void RGBtoHSL(Color color, f32* h, f32* s, f32* l) {
     f32 r = color.r / 255.0f;
     f32 g = color.g / 255.0f;
     f32 b = color.b / 255.0f;
@@ -73,11 +111,17 @@ Color HSLtoRGB(f32 h, f32 s, f32 l) {
         b = t[2];
     }
 
-    return (Color){(u8)(r * 255.0f), (u8)(g * 255.0f), (u8)(b * 255.0f), 255};
+    i32 rn = r * 255.0;
+    i32 gn = g * 255.0;
+    i32 bn = b * 255.0;
+
+    Color ret = {rn, gn, bn, 255};
+
+    return ret;
 }
 
 // Generate analogous colors
-void GenerateAnalogousColors(Color baseColor, Color *analogousColors,
+void GenerateAnalogousColors(Color baseColor, Color* analogousColors,
                              i32 count) {
     f32 h, s, l;
     RGBtoHSL(baseColor, &h, &s, &l);
@@ -95,16 +139,6 @@ void GenerateAnalogousColors(Color baseColor, Color *analogousColors,
     }
 }
 
-inline Color clampColor(i32 r, i32 g, i32 b, i32 a) {
-    Color newColor;
-    newColor.r = MIN(MAX(r, 0), 255);
-    newColor.g = MIN(MAX(g, 0), 255);
-    newColor.b = MIN(MAX(b, 0), 255);
-    newColor.a = MIN(MAX(a, 0), 255);
-
-    return newColor;
-}
-
 inline Color setColorShadow(Color c, i32 shadow) {
     Color newColor = c;
 
@@ -115,7 +149,11 @@ inline Color setColorShadow(Color c, i32 shadow) {
     i32 b = (i32)c.b - shadow;
 
     newColor = clampColor(r, g, b, c.a);
-
+    f32 h, s, l;
+    RGBtoHSL(newColor, &h, &s, &l);
+    h *= 1 + shadow / 800.0;
+    newColor = HSLtoRGB(h, s, l);
+    newColor = clampColor(newColor.r, newColor.g, newColor.b, c.a);
     return newColor;
 }
 
@@ -126,8 +164,8 @@ Color saturateColor(Color cl, f32 mult) {
     return cl;
 }
 
-void getSphericalTextureCoords(i32 x, i32 y, i32 width, i32 height, f32 *u,
-                               f32 *v) {
+void getSphericalTextureCoords(i32 x, i32 y, i32 width, i32 height, f32* u,
+                               f32* v) {
     // Normalize x and y to [-1, 1]
     f32 nx = 2.0f * x / width - 1.0f;
     f32 ny = 2.0f * y / height - 1.0f;
@@ -143,12 +181,12 @@ void getSphericalTextureCoords(i32 x, i32 y, i32 width, i32 height, f32 *u,
 }
 
 // Function to apply the spherical distortion to the texture
-void applySphericalDistortion(Image *image) {
+void applySphericalDistortion(Image* image) {
     i32 width = image->width;
     i32 height = image->height;
 
     // Get pixel data from the image
-    Color *pixels = LoadImageColors(*image);
+    Color* pixels = LoadImageColors(*image);
 
     for (i32 y = 0; y < height; ++y) {
         for (i32 x = 0; x < width; ++x) {
@@ -171,7 +209,7 @@ void applySphericalDistortion(Image *image) {
 }
 
 Image cropImageToCircle(Image img, bool shadow) {
-    Color *pixels = LoadImageColors(img);
+    Color* pixels = LoadImageColors(img);
 
     for (i32 i = 0; i < img.width * img.height; i++) {
         i32 x = i % img.width;
@@ -185,7 +223,7 @@ Image cropImageToCircle(Image img, bool shadow) {
 
         f32 dist = sqrt(pow(xd, 2) + pow(yd, 2));
 
-        if (dist > (f32)img.width / 2) {
+        if (dist > (f32)img.width / 2 - 0.2) {
             ImageDrawPixel(&img, x, y, BLANK);
         } else if (shadow) {
             yd += 40;
@@ -200,7 +238,7 @@ Image cropImageToCircle(Image img, bool shadow) {
     return img;
 }
 
-inline Color normalizeColor(Color c) {
+Color normalizeColor(Color c) {
     // turn color as bright as possible
     f32 max = MAX(MAX(c.r, c.g), c.b);
     f32 mult = 255 / max;
@@ -223,14 +261,46 @@ inline Color genRandomColor() {
                    GetRandomValue(0, 255), 255};
 }
 
+void colorPerlin(Color* pixels, Image* img, i32 imgSize, Color c1, Color c2,
+                 Color c3) {
+    Color cl;
+    for (usize i = 0; i < imgSize * imgSize; i++) {
+        i32 x = i % imgSize;
+        i32 y = i / imgSize;
+        usize diff;
+
+        if (pixels[i].r < 100) {
+            diff = 100 - pixels[i].r;
+            cl = setColorShadow(c1, diff);
+            ImageDrawPixel(img, x, y, cl);
+        } else if (pixels[i].r < 150) {
+            diff = 150 - pixels[i].r;
+            cl = setColorShadow(c3, diff);
+
+            ImageDrawPixel(img, x, y, cl);
+        } else if (pixels[i].r < 200) {
+            diff = 200 - pixels[i].r;
+            cl = setColorShadow(c2, diff);
+            ImageDrawPixel(img, x, y, cl);
+        } else {
+            diff = 255 - pixels[i].r;
+            cl = setColorShadow(c2, diff);
+            ImageDrawPixel(img, x, y, cl);
+        }
+    }
+}
+
 Planet genPlanet(i32 imgSize, bool randomizeColors) {
     i32 randomSeed = GetRandomValue(0, 1000);
+    i32 thumbSize = 23;
 
-    // Image img = GenImagePerlinNoise(imgSize, imgSize, 5, 5 * 5, 4);
     Image img =
         GenImagePerlinNoise(imgSize, imgSize, randomSeed, randomSeed * 2, 4);
+    Image thumbnail = GenImagePerlinNoise(thumbSize, thumbSize, randomSeed,
+                                          randomSeed * 2, 4);
 
-    Color *pixels = LoadImageColors(img);
+    Color* imgPixels = LoadImageColors(img);
+    Color* thumbnailPixels = LoadImageColors(thumbnail);
     Color c1 = water;
     Color c2 = grassCl;
     Color c3 = swampcl;
@@ -246,54 +316,68 @@ Planet genPlanet(i32 imgSize, bool randomizeColors) {
         atmoColor = normalizeColor(otherColors[2]);
     }
 
-    for (usize i = 0; i < imgSize * imgSize; i++) {
-        i32 x = i % imgSize;
-        i32 y = i / imgSize;
-        usize diff;
+    colorPerlin(imgPixels, &img, imgSize, c1, c2, c3);
+    colorPerlin(thumbnailPixels, &thumbnail, thumbSize, c1, c2, c3);
 
-        if (pixels[i].r < 100) {
-            diff = 100 - pixels[i].r;
-            cl = setColorShadow(c1, diff);
-            ImageDrawPixel(&img, x, y, cl);
-        } else if (pixels[i].r < 150) {
-            diff = 150 - pixels[i].r;
-            cl = setColorShadow(c3, diff);
-
-            ImageDrawPixel(&img, x, y, cl);
-        } else if (pixels[i].r < 200) {
-            diff = 200 - pixels[i].r;
-            cl = setColorShadow(c2, diff);
-            ImageDrawPixel(&img, x, y, cl);
-        } else {
-            diff = 255 - pixels[i].r;
-            cl = setColorShadow(c2, diff);
-            ImageDrawPixel(&img, x, y, cl);
-        }
-    }
-
-    Image streched = ImageCopy(img);
+    applySphericalDistortion(&img);
+    applySphericalDistortion(&thumbnail);
     img = cropImageToCircle(img, true);
-
-    applySphericalDistortion(&streched);
-    streched = cropImageToCircle(streched, true);
+    thumbnail = cropImageToCircle(thumbnail, false);
 
     atmoColor.a -= 50;
     Image atmosphereImg =
         cropImageToCircle(genAtmosphere(imgSize * atmosScale, atmoColor),
                           true); // should be false;
+    Image thumbnailAtmos = cropImageToCircle(
+        genAtmosphere((thumbSize)*atmosScale, atmoColor), true);
 
-    Texture2D tex = LoadTextureFromImage(img);
     Texture2D atmosphere = LoadTextureFromImage(atmosphereImg);
-    Texture2D test = LoadTextureFromImage(streched);
+    Texture2D thumbnailAtmosphere = LoadTextureFromImage(thumbnailAtmos);
+    Texture2D tex = LoadTextureFromImage(img);
+    Texture2D thumb = LoadTextureFromImage(thumbnail);
 
-    free(pixels);
+    free(imgPixels);
+    free(thumbnailPixels);
 
-    Planet planet = {tex, test, atmosphere, (Vector2){0, 0}, imgSize};
+    Color average = averageColors(3, c1, c2, c3);
+
+    Color* palette = malloc(sizeof(Color) * 4);
+    palette[0] = c1;
+    palette[1] = c2;
+    palette[2] = c3;
+    atmoColor.a = 255;
+    palette[3] = atmoColor;
+
+    Planet planet = {
+        tex,     atmosphere, thumb,  thumbnailAtmosphere, (Vector2){0, 0},
+        imgSize, average,    palette};
 
     return planet;
 }
 
-void drawPlanet(Planet *planet) {
+void drawPlanetThumbnail(Vector2 pos, Planet* planet) {
+    Rectangle srcT = {0, 0, planet->thumbnail.width, planet->thumbnail.height};
+    Rectangle destT = {pos.x, pos.y, planet->thumbnail.width,
+                       planet->thumbnail.height};
+
+    Rectangle srcA = {0, 0, planet->thumbnailAtmosphere.width,
+                      planet->thumbnailAtmosphere.height};
+
+    // dest of the atmosphere considering that it is atmosScale times bigger
+    // than the planet
+    float atmosSize = planet->thumbnail.width * atmosScale;
+    Rectangle destA = {pos.x + (destT.width - atmosSize) / 2,
+                       pos.y + (destT.height - atmosSize) / 2, atmosSize,
+                       atmosSize};
+
+    DrawTexturePro(planet->thumbnail, srcT, destT, (Vector2){0, 0}, 0.0f,
+                   WHITE);
+    DrawTexturePro(planet->thumbnailAtmosphere, srcA, destA, (Vector2){0, 0},
+                   0.0f, WHITE);
+}
+
+void drawPlanet(Planet* planet, f32 scale) {
+    f32 planetScale = globalPlanetScale * scale;
     Rectangle srcP = {0, 0, planet->size, planet->size};
     Rectangle srcA = {0, 0, planet->size * atmosScale,
                       planet->size * atmosScale};
@@ -301,7 +385,7 @@ void drawPlanet(Planet *planet) {
                        planet->size * planetScale};
 
     // Draw the planet texture
-    DrawTexturePro(planet->test, srcP, destP, (Vector2){0, 0}, 0.0f, WHITE);
+    DrawTexturePro(planet->texture, srcP, destP, (Vector2){0, 0}, 0.0f, WHITE);
 
     float atmosSize = planet->size * planetScale * atmosScale;
     Rectangle destA = {planet->pos.x + (destP.width - atmosSize) / 2,

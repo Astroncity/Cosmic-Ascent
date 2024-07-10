@@ -1,19 +1,32 @@
 #include "defs.h"
 #include "planet.h"
+#include "planetTerrain.h"
+#include "player.h"
 #include "raylib.h"
+#include "render.h"
+#include "task.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
 Vector2 mouse;
 Font bestFont;
+
+#define UI_SCALE 1
+
+Planet* currentPlanet;
+PlanetTerrain* currentTerrain;
+
+// TEST: ui test, temporary
+
+Texture2D UITexture;
+Texture2D botBar;
 
 Vector2 v2Clamp(Vector2 vec, Vector2 min, Vector2 max) {
     return (Vector2){MIN(MAX(vec.x, min.x), max.x),
                      MIN(MAX(vec.y, min.y), max.y)};
 }
 
-void DrawText3D(const char *text, i32 x, i32 y, i32 size, Color color) {
+void DrawText3D(const char* text, i32 x, i32 y, i32 size, Color color) {
     for (usize i = 0; i < 5; i++) {
         i16 tempA = (i16)color.a;
         tempA -= i * 50;
@@ -47,55 +60,87 @@ Vector2 getScreenMousePos(f32 scale, i32 sw, i32 sh) {
     return mouse;
 }
 
-int main(void) {
-    const i32 screenWidth = 1920;
-    const i32 screenHeight = 1080;
+void drawBotBar() {
+    Vector2 pos = {screenWidth / 3.0, (16 + 5) * UI_SCALE};
+    Rectangle src = {0, 0, botBar.width, botBar.height};
+    Rectangle dest = {pos.x, pos.y, src.width * UI_SCALE,
+                      src.height * UI_SCALE};
+    Vector2 org = {src.width * UI_SCALE / 2, src.height * UI_SCALE / 2};
+    DrawTexturePro(botBar, src, dest, org, 0, RED);
+}
 
+void drawUI() {
+    Vector2 pos = {screenWidth / 2.0, 16 * UI_SCALE};
+    Rectangle src = {0, 0, UITexture.width, UITexture.height};
+    Rectangle dest = {pos.x, pos.y, src.width * UI_SCALE,
+                      src.height * UI_SCALE};
+    Vector2 org = {src.width * UI_SCALE / 2, src.height * UI_SCALE / 2};
+    DrawTexturePro(UITexture, src, dest, org, 0, WHITE);
+
+    drawBotBar();
+
+    Vector2 thumbPos = pos; // thumbnail is 24x24
+    thumbPos.x -= 12 * UI_SCALE;
+    thumbPos.y -= 12 * UI_SCALE;
+
+    drawPlanetThumbnail(thumbPos, currentPlanet);
+    // DrawFPS(100, 100);
+}
+
+int main(void) {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    SetTraceLogLevel(LOG_ERROR);
     InitWindow(screenWidth, screenHeight, "Planet Generation Test");
     InitAudioDevice();
     SetMasterVolume(0);
     SetTargetFPS(144);
+    SetWindowSize(1920, 1080);
 
     RenderTexture2D target = LoadRenderTexture(screenWidth, screenHeight);
-    SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
+    SetTextureFilter(target.texture, TEXTURE_FILTER_POINT);
 
-    bestFont = LoadFontEx("fonts/spaceMono.ttf", 100, NULL, 0);
+    bestFont = LoadFontEx("assets/fonts/spaceMono.ttf", 100, NULL, 0);
+    UITexture = LoadTexture("assets/images/UI.png");
+    botBar = LoadTexture("assets/images/barBot.png");
 
-    // TEST: perlin noise test
+    // const u16 imgSize = 64;
 
-    const u16 imgSize = 64;
+    Player* player = PlayerCreate(screenWidth / 2.0, screenHeight / 2.0);
+    Sword* sword = createSword(player, &mouse, WHITE);
+    player->weaponData = (WeaponData){sword, sword->use};
 
-    f64 start, end;
-    start = clock();
+    Planet testPlanet = genPlanet(64, true);
+    currentPlanet = &testPlanet;
+    testPlanet.pos = (Vector2){screenWidth - 350, screenHeight / 2.0 - 128};
+    PlanetTerrain* terrain = genPlanetTerrain(&testPlanet);
+    currentTerrain = terrain;
 
-    Planet testPlanets[10];
-
-    for (usize i = 0; i < 10; i++) {
-        testPlanets[i] = genPlanet(imgSize, true);
-    }
-
-    end = clock();
-    double elapsed = (double)(end - start) / CLOCKS_PER_SEC;
-    printf("Time taken to generate 10 planets: %fs\n", elapsed);
+    // TEST: task sys test
 
     while (!WindowShouldClose()) {
         f32 scale = MIN((f32)GetScreenWidth() / screenWidth,
                         (float)GetScreenHeight() / screenHeight);
 
         mouse = getScreenMousePos(scale, screenWidth, screenHeight);
+        player->update(player);
+        runAllTasks();
 
         BeginTextureMode(target);
 
         ClearBackground(BLACK);
-        DrawFPS(100, 100);
+        DrawTextureEx(terrain->texture, (Vector2){}, 0, LEVEL_SCALE, WHITE);
 
-        for (usize i = 0; i < 10; i++) {
-            testPlanets[i].pos =
-                (Vector2){(f32)(i % 5) * 200, (f32)(i / 5.0) * 200};
-            drawPlanet(&testPlanets[i]);
-        }
+        player->render(player);
+        renderAll();
+        drawUI();
 
+        DrawText(TextFormat("Mouse: (%f, %f)", mouse.x, mouse.y), 0, 0, 10,
+                 WHITE);
+
+        // draw horizontal and vertical line for allignment
+        // DrawLine(0, screenHeight / 2, screenWidth, screenHeight / 2, RED);
+        // DrawLine(screenWidth / 2, 0, screenWidth / 2, screenHeight, RED);
+        // drawPlanet(&testPlanet, 1);
         EndTextureMode();
 
         BeginDrawing();
