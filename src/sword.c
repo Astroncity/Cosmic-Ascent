@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static const i32 distanceFromPlr = 25;
+static i32 distanceFromPlr = 25;
 static f32 angle;
 static f32 previousAngle;
 static f32 angleDelta;
@@ -19,7 +19,7 @@ static struct SpinData {
     f32* angle;
 } SpinData;
 
-const struct SpinData spinData = {
+struct SpinData spinData = {
     .start = 0,
     .runTime = 1,
     .angle = &angle,
@@ -54,7 +54,7 @@ f32 clampAngle(f32 angle) {
 
 void spinTask(TASK_PARAMS) {
     // ends mouse control and spins sword for 1 sec
-    const struct SpinData* data = (struct SpinData*)taskData;
+    struct SpinData* data = (struct SpinData*)taskData;
     mouseControl = false;
 
     bool ended = GetTime() >= data->start + data->runTime;
@@ -68,8 +68,8 @@ void spinTask(TASK_PARAMS) {
 }
 
 static void control(Sword* sword) {
-    const f32 sens = 5 * GetFrameTime();
-    const f32 angleToMouse = getAngleToMouse(sword);
+    f32 sens = 5 * GetFrameTime();
+    f32 angleToMouse = getAngleToMouse(sword);
     angle = lerpAngle(angle, angleToMouse, sens);
     angle = clampAngle(angle);
 }
@@ -79,7 +79,7 @@ static void use(void* swordP) {
     sword->rect.x = sword->owner->rect.x;
     sword->rect.y = sword->owner->rect.y;
 
-    if (!mouseControl) control(sword);
+    if (mouseControl) control(sword);
 
     angleDelta = angle - previousAngle;
     printf("speed: %f\n", fabs(angleDelta));

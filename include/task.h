@@ -8,7 +8,7 @@ typedef struct Task Task;
 typedef struct Task {
     void* taskData; // if run needs external data
     bool setForDeletion;
-    void (*run)(void*, Task*);
+    void (*run)(void* /*dataData*/, Task*);
 } Task;
 
 typedef struct TaskNode TaskNode;
