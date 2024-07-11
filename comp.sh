@@ -16,7 +16,7 @@ BIN_DIR="bin/"
 OUTPUT_NAME="main"
 
 # Compiler flags
-CXXFLAGS="-Wall -Wextra -Werror -Wno-unused-variable -std=c99 -O3 -L lib/ -I include/ -lraylib -lm"
+CXXFLAGS="-Wall -Wextra -Werror -std=c99 -ggdb -L lib/ -I include/ -lraylib -lm"
 
 # Create build and bin directories if they don't exist
 mkdir -p "$BUILD_DIR"

@@ -12,7 +12,7 @@ Color water = {98, 164 * 1.25, 184 * 1.25, 255};
 f32 globalPlanetScale = 1;
 f32 atmosScale = 1.1;
 
-inline Color clampColor(i32 r, i32 g, i32 b, i32 a) {
+Color clampColor(i32 r, i32 g, i32 b, i32 a) {
     Color newColor;
     newColor.r = MIN(MAX(r, 0), 255);
     newColor.g = MIN(MAX(g, 0), 255);
@@ -90,10 +90,8 @@ Color HSLtoRGB(f32 h, f32 s, f32 l) {
         f32 t[3] = {h + 1.0f / 3.0f, h, h - 1.0f / 3.0f};
 
         for (i32 i = 0; i < 3; ++i) {
-            if (t[i] < 0.0f)
-                t[i] += 1.0f;
-            if (t[i] > 1.0f)
-                t[i] -= 1.0f;
+            if (t[i] < 0.0f) t[i] += 1.0f;
+            if (t[i] > 1.0f) t[i] -= 1.0f;
 
             if (t[i] < 1.0f / 6.0f) {
                 t[i] = p + (q - p) * 6.0f * t[i];
@@ -130,16 +128,14 @@ void GenerateAnalogousColors(Color baseColor, Color* analogousColors,
 
     for (i32 i = 0; i < count; ++i) {
         f32 newHue = h + hueStep * (i - count / 2.0);
-        if (newHue < 0.0f)
-            newHue += 1.0f;
-        if (newHue > 1.0f)
-            newHue -= 1.0f;
+        if (newHue < 0.0f) newHue += 1.0f;
+        if (newHue > 1.0f) newHue -= 1.0f;
 
         analogousColors[i] = HSLtoRGB(newHue, s, l);
     }
 }
 
-inline Color setColorShadow(Color c, i32 shadow) {
+Color setColorShadow(Color c, i32 shadow) {
     Color newColor = c;
 
     shadow /= 2;
@@ -256,7 +252,7 @@ Image genAtmosphere(i32 size, Color color) {
     return img;
 }
 
-inline Color genRandomColor() {
+Color genRandomColor() {
     return (Color){GetRandomValue(0, 255), GetRandomValue(0, 255),
                    GetRandomValue(0, 255), 255};
 }
@@ -304,7 +300,6 @@ Planet genPlanet(i32 imgSize, bool randomizeColors) {
     Color c1 = water;
     Color c2 = grassCl;
     Color c3 = swampcl;
-    Color cl;
     Color atmoColor = SKYBLUE;
 
     if (randomizeColors) {
@@ -348,14 +343,13 @@ Planet genPlanet(i32 imgSize, bool randomizeColors) {
     atmoColor.a = 255;
     palette[3] = atmoColor;
 
-    Planet planet = {
-        tex,     atmosphere, thumb,  thumbnailAtmosphere, (Vector2){0, 0},
-        imgSize, average,    palette};
+    Planet planet = {tex,        atmosphere, thumb,   thumbnailAtmosphere,
+                     (v2){0, 0}, imgSize,    average, palette};
 
     return planet;
 }
 
-void drawPlanetThumbnail(Vector2 pos, Planet* planet) {
+void drawPlanetThumbnail(v2 pos, Planet* planet) {
     Rectangle srcT = {0, 0, planet->thumbnail.width, planet->thumbnail.height};
     Rectangle destT = {pos.x, pos.y, planet->thumbnail.width,
                        planet->thumbnail.height};
@@ -370,10 +364,9 @@ void drawPlanetThumbnail(Vector2 pos, Planet* planet) {
                        pos.y + (destT.height - atmosSize) / 2, atmosSize,
                        atmosSize};
 
-    DrawTexturePro(planet->thumbnail, srcT, destT, (Vector2){0, 0}, 0.0f,
+    DrawTexturePro(planet->thumbnail, srcT, destT, (v2){0, 0}, 0.0f, WHITE);
+    DrawTexturePro(planet->thumbnailAtmosphere, srcA, destA, (v2){0, 0}, 0.0f,
                    WHITE);
-    DrawTexturePro(planet->thumbnailAtmosphere, srcA, destA, (Vector2){0, 0},
-                   0.0f, WHITE);
 }
 
 void drawPlanet(Planet* planet, f32 scale) {
@@ -385,13 +378,12 @@ void drawPlanet(Planet* planet, f32 scale) {
                        planet->size * planetScale};
 
     // Draw the planet texture
-    DrawTexturePro(planet->texture, srcP, destP, (Vector2){0, 0}, 0.0f, WHITE);
+    DrawTexturePro(planet->texture, srcP, destP, (v2){0, 0}, 0.0f, WHITE);
 
     float atmosSize = planet->size * planetScale * atmosScale;
     Rectangle destA = {planet->pos.x + (destP.width - atmosSize) / 2,
                        planet->pos.y + (destP.height - atmosSize) / 2,
                        atmosSize, atmosSize};
 
-    DrawTexturePro(planet->atmosphere, srcA, destA, (Vector2){0, 0}, 0.0f,
-                   WHITE);
+    DrawTexturePro(planet->atmosphere, srcA, destA, (v2){0, 0}, 0.0f, WHITE);
 }

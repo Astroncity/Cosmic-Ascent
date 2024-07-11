@@ -5,10 +5,10 @@
 #include <stdlib.h>
 
 const i32 imgSize = 480;
-const i32 OBJ_COUNT = 10;
+const i32 OBJ_COUNT = 20;
 const i32 MAP_SIZE = LEVEL_SCALE * imgSize;
 
-inline Color satShiftColor(Color color, f32 shift) {
+Color satShiftColor(Color color, f32 shift) {
     f32 h, s, l;
     RGBtoHSL(color, &h, &s, &l);
     s += shift;

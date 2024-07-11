@@ -1,5 +1,4 @@
 #pragma once
-#include "defs.h"
 #include <stdbool.h>
 
 #define TASK_PARAMS void *taskData, Task *task

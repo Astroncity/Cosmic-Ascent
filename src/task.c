@@ -1,4 +1,5 @@
 #include "task.h"
+#include <stdlib.h>
 
 TaskNode* taskHead = NULL;
 

@@ -3,7 +3,6 @@
 
 static const f32 PLAYER_SPEED = 50;
 static const f32 PLAYER_SCALE = 1;
-static const char* PLAYER_SPRITE = "assets/images/ghosty.png";
 
 static Texture2D playerTextures[4];
 static bool loadedTextures = false;
@@ -14,7 +13,7 @@ static void render(void* p) {
     Texture2D texture = playerTextures[playerDirection];
     Player* player = (Player*)p;
     Rectangle src = {0, 0, texture.width, texture.height};
-    Vector2 origin = {player->rect.width / 2.0, player->rect.height / 2.0};
+    v2 origin = {player->rect.width / 2.0, player->rect.height / 2.0};
 
     DrawTexturePro(texture, src, player->rect, origin, 0, WHITE);
 }

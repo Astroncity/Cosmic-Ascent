@@ -27,6 +27,35 @@ void addRender(RenderData data) {
     curr->next = new;
 }
 
+bool compareRenderData(RenderData a, RenderData b) {
+    if (a.obj == b.obj && a.priority == b.priority && a.render == b.render) {
+        return true;
+    }
+    return false;
+}
+
+void removeRender(RenderData data) {
+    RenderNode* curr = renderHead;
+    RenderNode* prev = NULL;
+
+    while (curr != NULL) {
+        if (compareRenderData(data, curr->data)) {
+            if (prev == NULL) {
+                renderHead = curr->next;
+            } else {
+                prev->next = curr->next;
+            }
+
+            RenderNode* temp = curr;
+            curr = curr->next;
+            free(temp);
+        } else {
+            prev = curr;
+            curr = curr->next;
+        }
+    }
+}
+
 void renderAll() {
     RenderNode* curr = renderHead;
     while (curr != NULL) {

@@ -1,4 +1,5 @@
 #include "defs.h"
+#include "gameobject.h"
 #include "planet.h"
 #include "planetTerrain.h"
 #include "player.h"
@@ -8,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-Vector2 mouse;
+v2 mouse;
 Font bestFont;
 
 #define UI_SCALE 1
@@ -16,25 +17,22 @@ Font bestFont;
 Planet* currentPlanet;
 PlanetTerrain* currentTerrain;
 
-// TEST: ui test, temporary
-
 Texture2D UITexture;
 Texture2D botBar;
 
-Vector2 v2Clamp(Vector2 vec, Vector2 min, Vector2 max) {
-    return (Vector2){MIN(MAX(vec.x, min.x), max.x),
-                     MIN(MAX(vec.y, min.y), max.y)};
+v2 v2Clamp(v2 vec, v2 min, v2 max) {
+    return (v2){MIN(MAX(vec.x, min.x), max.x),
+                MIN(MAX(vec.y, min.y), max.y)};
 }
 
 void DrawText3D(const char* text, i32 x, i32 y, i32 size, Color color) {
     for (usize i = 0; i < 5; i++) {
         i16 tempA = (i16)color.a;
         tempA -= i * 50;
-        if (tempA < 0)
-            tempA = 0;
+        if (tempA < 0) tempA = 0;
 
         Color cl = (Color){color.r, color.g, color.b, (u8)tempA};
-        DrawTextEx(bestFont, text, (Vector2){(f32)x, y + (f32)i * 2}, size, 1,
+        DrawTextEx(bestFont, text, (v2){(f32)x, y + (f32)i * 2}, size, 1,
                    cl);
     }
 }
@@ -48,38 +46,40 @@ void drawScaledWindow(RenderTexture2D target, f32 sw, f32 sh, f32 scale) {
 
     Rectangle rect2 = {x, y, sw * scale, sh * scale};
 
-    DrawTexturePro(target.texture, rect1, rect2, (Vector2){0, 0}, 0.0f, WHITE);
+    DrawTexturePro(target.texture, rect1, rect2, (v2){0, 0}, 0.0f, WHITE);
 }
 
-Vector2 getScreenMousePos(f32 scale, i32 sw, i32 sh) {
-    Vector2 mouseOLD = GetMousePosition();
-    mouse.x = (mouseOLD.x - (GetScreenWidth() - (sw * scale)) * 0.5f) / scale;
-    mouse.y = (mouseOLD.y - (GetScreenHeight() - (sh * scale)) * 0.5f) / scale;
-    mouse = v2Clamp(mouse, (Vector2){0, 0}, (Vector2){(f32)sw, (f32)sh});
+v2 getScreenMousePos(f32 scale, i32 sw, i32 sh) {
+    v2 mouseOLD = GetMousePosition();
+    mouse.x =
+        (mouseOLD.x - (GetScreenWidth() - (sw * scale)) * 0.5f) / scale;
+    mouse.y =
+        (mouseOLD.y - (GetScreenHeight() - (sh * scale)) * 0.5f) / scale;
+    mouse = v2Clamp(mouse, (v2){0, 0}, (v2){(f32)sw, (f32)sh});
 
     return mouse;
 }
 
 void drawBotBar() {
-    Vector2 pos = {screenWidth / 3.0, (16 + 5) * UI_SCALE};
+    v2 pos = {screenWidth / 2.61, (16 + 5) * UI_SCALE};
     Rectangle src = {0, 0, botBar.width, botBar.height};
     Rectangle dest = {pos.x, pos.y, src.width * UI_SCALE,
                       src.height * UI_SCALE};
-    Vector2 org = {src.width * UI_SCALE / 2, src.height * UI_SCALE / 2};
-    DrawTexturePro(botBar, src, dest, org, 0, RED);
+    v2 org = {src.width * UI_SCALE / 2, src.height * UI_SCALE / 2};
+    DrawTexturePro(botBar, src, dest, org, 0, WHITE);
 }
 
 void drawUI() {
-    Vector2 pos = {screenWidth / 2.0, 16 * UI_SCALE};
+    v2 pos = {screenWidth / 2.0, 16 * UI_SCALE};
     Rectangle src = {0, 0, UITexture.width, UITexture.height};
     Rectangle dest = {pos.x, pos.y, src.width * UI_SCALE,
                       src.height * UI_SCALE};
-    Vector2 org = {src.width * UI_SCALE / 2, src.height * UI_SCALE / 2};
+    v2 org = {src.width * UI_SCALE / 2, src.height * UI_SCALE / 2};
     DrawTexturePro(UITexture, src, dest, org, 0, WHITE);
 
     drawBotBar();
 
-    Vector2 thumbPos = pos; // thumbnail is 24x24
+    v2 thumbPos = pos; // thumbnail is 24x24
     thumbPos.x -= 12 * UI_SCALE;
     thumbPos.y -= 12 * UI_SCALE;
 
@@ -111,11 +111,9 @@ int main(void) {
 
     Planet testPlanet = genPlanet(64, true);
     currentPlanet = &testPlanet;
-    testPlanet.pos = (Vector2){screenWidth - 350, screenHeight / 2.0 - 128};
+    testPlanet.pos = (v2){screenWidth - 350, screenHeight / 2.0 - 128};
     PlanetTerrain* terrain = genPlanetTerrain(&testPlanet);
     currentTerrain = terrain;
-
-    // TEST: task sys test
 
     while (!WindowShouldClose()) {
         f32 scale = MIN((f32)GetScreenWidth() / screenWidth,
@@ -124,11 +122,12 @@ int main(void) {
         mouse = getScreenMousePos(scale, screenWidth, screenHeight);
         player->update(player);
         runAllTasks();
+        runGameObjects();
 
         BeginTextureMode(target);
 
         ClearBackground(BLACK);
-        DrawTextureEx(terrain->texture, (Vector2){}, 0, LEVEL_SCALE, WHITE);
+        DrawTextureEx(terrain->texture, (v2){}, 0, LEVEL_SCALE, WHITE);
 
         player->render(player);
         renderAll();
@@ -138,9 +137,9 @@ int main(void) {
                  WHITE);
 
         // draw horizontal and vertical line for allignment
-        // DrawLine(0, screenHeight / 2, screenWidth, screenHeight / 2, RED);
-        // DrawLine(screenWidth / 2, 0, screenWidth / 2, screenHeight, RED);
-        // drawPlanet(&testPlanet, 1);
+        // DrawLine(0, screenHeight / 2, screenWidth, screenHeight / 2,
+        // RED); DrawLine(screenWidth / 2, 0, screenWidth / 2, screenHeight,
+        // RED); drawPlanet(&testPlanet, 1);
         EndTextureMode();
 
         BeginDrawing();
