@@ -193,7 +193,8 @@ void applySphericalDistortion(Image* image) {
             i32 srcX = (i32)fmaxf(0, fminf(width - 1, u));
             i32 srcY = (i32)fmaxf(0, fminf(height - 1, v));
 
-            // Copy the pixel from the source texture to the distorted texture
+            // Copy the pixel from the source texture to the distorted
+            // texture
             ImageDrawPixel(image, x, y, pixels[srcY * width + srcX]);
         }
     }
@@ -290,8 +291,8 @@ Planet genPlanet(i32 imgSize, bool randomizeColors) {
     i32 randomSeed = GetRandomValue(0, 1000);
     i32 thumbSize = 23;
 
-    Image img =
-        GenImagePerlinNoise(imgSize, imgSize, randomSeed, randomSeed * 2, 4);
+    Image img = GenImagePerlinNoise(imgSize, imgSize, randomSeed,
+                                    randomSeed * 2, 4);
     Image thumbnail = GenImagePerlinNoise(thumbSize, thumbSize, randomSeed,
                                           randomSeed * 2, 4);
 
@@ -350,7 +351,8 @@ Planet genPlanet(i32 imgSize, bool randomizeColors) {
 }
 
 void drawPlanetThumbnail(v2 pos, Planet* planet) {
-    Rectangle srcT = {0, 0, planet->thumbnail.width, planet->thumbnail.height};
+    Rectangle srcT = {0, 0, planet->thumbnail.width,
+                      planet->thumbnail.height};
     Rectangle destT = {pos.x, pos.y, planet->thumbnail.width,
                        planet->thumbnail.height};
 
@@ -365,8 +367,8 @@ void drawPlanetThumbnail(v2 pos, Planet* planet) {
                        atmosSize};
 
     DrawTexturePro(planet->thumbnail, srcT, destT, (v2){0, 0}, 0.0f, WHITE);
-    DrawTexturePro(planet->thumbnailAtmosphere, srcA, destA, (v2){0, 0}, 0.0f,
-                   WHITE);
+    DrawTexturePro(planet->thumbnailAtmosphere, srcA, destA, (v2){0, 0},
+                   0.0f, WHITE);
 }
 
 void drawPlanet(Planet* planet, f32 scale) {
@@ -374,7 +376,8 @@ void drawPlanet(Planet* planet, f32 scale) {
     Rectangle srcP = {0, 0, planet->size, planet->size};
     Rectangle srcA = {0, 0, planet->size * atmosScale,
                       planet->size * atmosScale};
-    Rectangle destP = {planet->pos.x, planet->pos.y, planet->size * planetScale,
+    Rectangle destP = {planet->pos.x, planet->pos.y,
+                       planet->size * planetScale,
                        planet->size * planetScale};
 
     // Draw the planet texture
@@ -385,5 +388,6 @@ void drawPlanet(Planet* planet, f32 scale) {
                        planet->pos.y + (destP.height - atmosSize) / 2,
                        atmosSize, atmosSize};
 
-    DrawTexturePro(planet->atmosphere, srcA, destA, (v2){0, 0}, 0.0f, WHITE);
+    DrawTexturePro(planet->atmosphere, srcA, destA, (v2){0, 0}, 0.0f,
+                   WHITE);
 }

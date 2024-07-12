@@ -27,6 +27,10 @@ static void drawCol(Rock* rock) {
 static void render(void* rockP) {
     Rock* rock = (Rock*)rockP;
 
+    if (rock->invulnerableTimer > 0) {
+        rock->invulnerableTimer -= GetFrameTime();
+    }
+
     Rectangle dest = rock->rect;
 
     Rectangle src = {0, 0, rock->rect.width, rock->rect.height};
@@ -39,6 +43,7 @@ static void render(void* rockP) {
     DrawTexturePro(rock->texture, src, shadowDest, org, 0, shadowTint);
 
     DrawTexturePro(rock->texture, src, dest, org, 0, rock->cl);
+    BarRender(rock->healthBar, rock->cl);
     if (false) drawCol(rock);
 }
 
@@ -48,7 +53,17 @@ static void destroy(Rock* self) {
     free(self);
 }
 
-void hit(Rock* self) { destroy(self); }
+void hit(Rock* self) {
+    if (self->invulnerableTimer > 0) {
+        return;
+    }
+    self->invulnerableTimer = 0.25;
+    self->health -= 1;
+    self->healthBar->value = self->health;
+    if (self->health <= 0) {
+        destroy(self);
+    }
+}
 
 Rock* createRock(f32 x, f32 y, Color cl) {
     if (rockTexture.id == 0) {
@@ -62,6 +77,9 @@ Rock* createRock(f32 x, f32 y, Color cl) {
     rock->renderData = (RenderData){rock, render, RENDER_PRIORITY};
     rock->cl = cl;
     rock->hit = hit;
+    rock->health = 3;
+    rock->maxHealth = 3;
+    rock->healthBar = BarCreate(x - 8, y - 10, rock->maxHealth, false);
     printf("reached\n");
     addRender(rock->renderData);
     rock->gameobject = createGameObject("rock", rock, getRockCollider);

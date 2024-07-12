@@ -51,6 +51,10 @@ static void update(void* p) {
         player->rect.x += localSpeed;
         playerDirection = 3;
     }
+
+    if (IsKeyPressed(KEY_SPACE)) {
+        player->health -= 10;
+    }
 }
 
 Player* PlayerCreate(f32 x, f32 y) {
@@ -62,5 +66,7 @@ Player* PlayerCreate(f32 x, f32 y) {
     player->rect = (Rectangle){x, y, w, h};
     player->render = render;
     player->update = update;
+    player->maxHealth = 100;
+    player->health = player->maxHealth;
     return player;
 }

@@ -1,3 +1,4 @@
+#include "bar.h"
 #include "defs.h"
 #include "gameobject.h"
 #include "planet.h"
@@ -19,6 +20,8 @@ PlanetTerrain* currentTerrain;
 
 Texture2D UITexture;
 Texture2D botBar;
+Bar* healthBar;
+Player* player;
 
 v2 v2Clamp(v2 vec, v2 min, v2 max) {
     return (v2){MIN(MAX(vec.x, min.x), max.x),
@@ -60,15 +63,6 @@ v2 getScreenMousePos(f32 scale, i32 sw, i32 sh) {
     return mouse;
 }
 
-void drawBotBar() {
-    v2 pos = {screenWidth / 2.61, (16 + 5) * UI_SCALE};
-    Rectangle src = {0, 0, botBar.width, botBar.height};
-    Rectangle dest = {pos.x, pos.y, src.width * UI_SCALE,
-                      src.height * UI_SCALE};
-    v2 org = {src.width * UI_SCALE / 2, src.height * UI_SCALE / 2};
-    DrawTexturePro(botBar, src, dest, org, 0, WHITE);
-}
-
 void drawUI() {
     v2 pos = {screenWidth / 2.0, 16 * UI_SCALE};
     Rectangle src = {0, 0, UITexture.width, UITexture.height};
@@ -77,8 +71,8 @@ void drawUI() {
     v2 org = {src.width * UI_SCALE / 2, src.height * UI_SCALE / 2};
     DrawTexturePro(UITexture, src, dest, org, 0, WHITE);
 
-    drawBotBar();
-
+    healthBar->value = player->health;
+    BarRender(healthBar, (Color){255, 105, 97, 255});
     v2 thumbPos = pos; // thumbnail is 24x24
     thumbPos.x -= 12 * UI_SCALE;
     thumbPos.y -= 12 * UI_SCALE;
@@ -103,9 +97,11 @@ int main(void) {
     UITexture = LoadTexture("assets/images/UI.png");
     botBar = LoadTexture("assets/images/barBot.png");
 
+    healthBar = BarCreate(163, 16, 100, true);
+
     // const u16 imgSize = 64;
 
-    Player* player = PlayerCreate(screenWidth / 2.0, screenHeight / 2.0);
+    player = PlayerCreate(screenWidth / 2.0, screenHeight / 2.0);
     Sword* sword = createSword(player, &mouse, WHITE);
     player->weaponData = (WeaponData){sword, sword->use};
 
@@ -116,6 +112,7 @@ int main(void) {
     currentTerrain = terrain;
 
     while (!WindowShouldClose()) {
+
         f32 scale = MIN((f32)GetScreenWidth() / screenWidth,
                         (float)GetScreenHeight() / screenHeight);
 
@@ -123,6 +120,7 @@ int main(void) {
         player->update(player);
         runAllTasks();
         runGameObjects();
+        // updateParticleSystem(testSys);
 
         BeginTextureMode(target);
 
@@ -131,6 +129,7 @@ int main(void) {
 
         player->render(player);
         renderAll();
+        // drawParticleSystem(testSys);
         drawUI();
 
         DrawText(TextFormat("Mouse: (%f, %f)", mouse.x, mouse.y), 0, 0, 10,

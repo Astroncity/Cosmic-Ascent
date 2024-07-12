@@ -16,6 +16,7 @@
 static i32 distanceFromPlr = 25;
 
 static Texture2D swordTex;
+static Texture2D swordEffect;
 static bool loadedTexture = false;
 
 v2 swordOrg;
@@ -118,7 +119,8 @@ static void spinTask(TASK_PARAMS) {
 }
 
 static void onCollision(Sword* sword, GameObject* other) {
-    printf("speed: %f\n", sword->angleDelta);
+    sword->invulnerableTimer = 0.25;
+    printf("collision\n");
     if (strcmp(other->tag, "rock") == 0) {
         Rock* rock = (Rock*)other->obj;
         rock->hit(rock);
@@ -133,9 +135,13 @@ static void onCollision(Sword* sword, GameObject* other) {
     }
 }
 
-static void handleCollision(Sword* sword) {
+static bool handleCollision(Sword* sword) {
     // assume other collider is axis alligned
+    if (sword->invulnerableTimer > 0) {
+        return false;
+    }
     v2* swordLines = getColliderLines(sword);
+    bool hit = false;
 
     GameObjectNode* curr = gameObjectHead;
     while (curr != NULL) {
@@ -147,16 +153,19 @@ static void handleCollision(Sword* sword) {
                                          otherLines[i],
                                          otherLines[i + 1])) {
                     onCollision(sword, curr->obj);
+                    hit = true;
                     free(otherLines);
                     goto cleanup;
                 }
             }
         }
+        free(otherLines);
         curr = curr->next;
     }
 
 cleanup:
     free(swordLines);
+    return hit;
 }
 
 static void DrawSwordColliderLines(Sword* sword) {
@@ -180,16 +189,22 @@ static void control(Sword* sword) {
 
 static void use(void* swordP) {
     Sword* sword = (Sword*)swordP;
+    sword->invulnerableTimer -= GetFrameTime();
     sword->rect.x = sword->owner->rect.x;
     sword->rect.y = sword->owner->rect.y;
 
     if (sword->mouseControl) control(sword);
-    sword->angleDelta = sword->angle - sword->previousAngle;
-
     sword->rect.x += cos(DEG2RAD * sword->angle) * distanceFromPlr;
     sword->rect.y += sin(DEG2RAD * sword->angle) * distanceFromPlr;
-    handleCollision(sword);
+    if (handleCollision(sword)) {
+        sword->rect.x = sword->prevPos.x;
+        sword->rect.y = sword->prevPos.y;
+        sword->angle = sword->previousAngle;
+    }
 
+    sword->prevPos = (v2){sword->rect.x, sword->rect.y};
+    sword->angleDelta = sword->angle - sword->previousAngle;
+    sword->previousAngle = sword->angle;
     if (IsMouseButtonPressed(0) && sword->mouseControl) {
         printf("Sword used\n");
         SpinData* newData = malloc(sizeof(SpinData));
@@ -198,19 +213,16 @@ static void use(void* swordP) {
         newData->sword = sword;
         createTask(newData, spinTask);
     }
-
-    sword->previousAngle = sword->angle;
 }
 
 static void render(void* swordP) {
     Sword* sword = (Sword*)swordP;
     Rectangle src = {0, 0, swordTex.width, swordTex.height};
+
     Rectangle dest = sword->rect;
     dest.width = swordTex.width * 1.25;
     dest.height = swordTex.height * 1.25;
     swordOrg = (v2){dest.width / 2, dest.height / 2};
-
-    // rotate to face mouse, sword is pointing at top right in image
 
     DrawTexturePro(swordTex, src, dest, swordOrg,
                    clampAngle(sword->angle + 45), sword->cl);
@@ -223,6 +235,7 @@ Sword* createSword(Player* owner, v2* mouse, Color cl) {
     Sword* sword = malloc(sizeof(Sword));
     if (!loadedTexture) {
         swordTex = LoadTexture("assets/images/sword.png");
+        swordEffect = LoadTexture("assets/images/attackEff.png");
         SetTextureFilter(swordTex, TEXTURE_FILTER_POINT);
     }
     sword->cl = cl;
@@ -233,6 +246,7 @@ Sword* createSword(Player* owner, v2* mouse, Color cl) {
     sword->rect.width = swordTex.width * 1.25;
     sword->rect.height = swordTex.height * 1.25;
     sword->mouseControl = true;
+    sword->invulnerableTimer = 0;
     addRender((RenderData){sword, render, 0});
     return sword;
 }

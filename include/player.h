@@ -8,6 +8,8 @@ typedef struct Player {
     f32 speed;
     i32 exp;
     i32 level;
+    f32 health;
+    f32 maxHealth;
     void (*render)(void*);
     void (*update)(void*);
     WeaponData weaponData;

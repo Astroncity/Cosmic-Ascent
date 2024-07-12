@@ -1,4 +1,5 @@
 #pragma once
+#include "bar.h"
 #include "defs.h"
 #include "gameobject.h"
 #include "raylib.h"
@@ -11,6 +12,10 @@ typedef struct Rock {
     RenderData renderData;
     Color cl;
     GameObject* gameobject;
+    Bar* healthBar;
+    i32 health;
+    i32 maxHealth;
+    f32 invulnerableTimer;
     void (*hit)(Rock* self);
 } Rock;
 

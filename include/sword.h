@@ -32,6 +32,8 @@ typedef struct Sword {
     f32 angle;
     f32 previousAngle;
     f32 angleDelta;
+    f32 invulnerableTimer;
+    v2 prevPos;
 } Sword;
 
 Sword* createSword(Player* owner, Vector2* mouse, Color cl);

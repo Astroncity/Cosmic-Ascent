@@ -5,7 +5,7 @@
 RenderNode* renderHead = NULL;
 
 void addRender(RenderData data) {
-    RenderNode* new = (RenderNode*)malloc(sizeof(RenderNode));
+    RenderNode* new = malloc(sizeof(RenderNode));
     new->data = data;
     new->next = NULL;
 
@@ -18,7 +18,8 @@ void addRender(RenderData data) {
 
     RenderNode* curr = renderHead;
     // Traverse the list to find the correct position
-    while (curr->next != NULL && curr->next->data.priority <= data.priority) {
+    while (curr->next != NULL &&
+           curr->next->data.priority <= data.priority) {
         curr = curr->next;
     }
 
@@ -28,7 +29,8 @@ void addRender(RenderData data) {
 }
 
 bool compareRenderData(RenderData a, RenderData b) {
-    if (a.obj == b.obj && a.priority == b.priority && a.render == b.render) {
+    if (a.obj == b.obj && a.priority == b.priority &&
+        a.render == b.render) {
         return true;
     }
     return false;

@@ -4,7 +4,7 @@
 TaskNode* taskHead = NULL;
 
 static void insertTask(Task* task) {
-    TaskNode* new = malloc(sizeof(TaskNode));
+    TaskNode* new = (TaskNode*)malloc(sizeof(TaskNode));
     new->task = task;
     new->next = NULL;
 
@@ -23,7 +23,7 @@ static void insertTask(Task* task) {
 }
 
 Task* createTask(void* taskData, void (*run)(void*, Task*)) {
-    Task* task = malloc(sizeof(Task));
+    Task* task = (Task*)malloc(sizeof(Task));
     task->taskData = taskData;
     task->run = run;
     task->setForDeletion = false;
