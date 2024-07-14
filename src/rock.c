@@ -1,24 +1,28 @@
 #include "rock.h"
+#include "expParticle.h"
 #include "gameobject.h"
 #include "raylib.h"
 #include <stdio.h>
 
 const char* TEXTURE_PATH = "assets/images/rock.png";
 const i32 RENDER_PRIORITY = 3;
+const i32 ROCK_EXP = 2;
 Texture2D rockTexture;
+Sound rockBreakfx;
+Sound rockHitfx;
 
 Color shadowTint = {0, 0, 0, 150};
 
-static Rectangle getRockCollider(GameObject* self) {
+static Rect getRockCollider(GameObject* self) {
     Rock* rock = (Rock*)self->obj;
-    Rectangle cpy = rock->rect;
+    Rect cpy = rock->rect;
     cpy.x -= rock->rect.width / 2;
     cpy.y -= rock->rect.height / 2;
     return cpy;
 }
 
 static void drawCol(Rock* rock) {
-    Rectangle cpy = rock->rect;
+    Rect cpy = rock->rect;
     cpy.x -= rock->rect.width / 2;
     cpy.y -= rock->rect.height / 2;
     DrawRectangleLines(cpy.x, cpy.y, cpy.width, cpy.height, GREEN);
@@ -31,23 +35,31 @@ static void render(void* rockP) {
         rock->invulnerableTimer -= GetFrameTime();
     }
 
-    Rectangle dest = rock->rect;
+    Rect dest = rock->rect;
 
-    Rectangle src = {0, 0, rock->rect.width, rock->rect.height};
+    Rect src = {0, 0, rock->rect.width, rock->rect.height};
     v2 org = {dest.width / 2, dest.height / 2};
     // shadow
     // DrawEllipse(rock->rect.x, rock->rect.y + 7, dest.width / 2,
     // dest.height / 4, shadowTint);
-    Rectangle shadowDest = dest;
+    Rect shadowDest = dest;
     shadowDest.y += 3;
     DrawTexturePro(rock->texture, src, shadowDest, org, 0, shadowTint);
 
     DrawTexturePro(rock->texture, src, dest, org, 0, rock->cl);
-    BarRender(rock->healthBar, rock->cl);
+    BarRender(rock->healthBar, rock->cl, true);
     if (false) drawCol(rock);
 }
 
 static void destroy(Rock* self) {
+    if (!IsSoundReady(rockBreakfx)) {
+        rockBreakfx = LoadSound("assets/sounds/rockBreakfx.wav");
+    }
+    PlaySound(rockBreakfx);
+
+    ExpParticleBatchCreate((Vector2){self->rect.x, self->rect.y}, self->cl,
+                           ROCK_EXP, 10);
+
     removeRender(self->renderData);
     removeGameObject(self->gameobject);
     free(self);
@@ -57,6 +69,12 @@ void hit(Rock* self) {
     if (self->invulnerableTimer > 0) {
         return;
     }
+
+    if (!IsSoundReady(rockHitfx)) {
+        rockHitfx = LoadSound("assets/sounds/rockHitfx.wav");
+    }
+    PlaySound(rockHitfx);
+
     self->invulnerableTimer = 0.25;
     self->health -= 1;
     self->healthBar->value = self->health;
@@ -73,14 +91,13 @@ Rock* createRock(f32 x, f32 y, Color cl) {
 
     Rock* rock = malloc(sizeof(Rock));
     rock->texture = rockTexture;
-    rock->rect = (Rectangle){x, y, rockTexture.width, rockTexture.height};
+    rock->rect = (Rect){x, y, rockTexture.width, rockTexture.height};
     rock->renderData = (RenderData){rock, render, RENDER_PRIORITY};
     rock->cl = cl;
     rock->hit = hit;
     rock->health = 3;
     rock->maxHealth = 3;
     rock->healthBar = BarCreate(x - 8, y - 10, rock->maxHealth, false);
-    printf("reached\n");
     addRender(rock->renderData);
     rock->gameobject = createGameObject("rock", rock, getRockCollider);
     return rock;

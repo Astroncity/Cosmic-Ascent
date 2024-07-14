@@ -46,7 +46,7 @@ void removeGameObject(GameObject* obj) {
 void runGameObjects() {}
 
 GameObject* createGameObject(char* tag, void* obj,
-                             Rectangle (*getCollider)(GameObject*)) {
+                             Rect (*getCollider)(GameObject*)) {
     GameObject* gameObject = malloc(sizeof(GameObject));
     gameObject->tag = tag;
     gameObject->obj = obj;

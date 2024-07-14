@@ -43,7 +43,7 @@ static f32 getAngleToMouse(Sword* sword) {
 }
 
 static v2* getColliderLines(Sword* sword) {
-    Rectangle r = sword->rect;
+    Rect r = sword->rect;
     r.width = 23;
     r.height = 5;
     r.x -= r.width / 2;
@@ -73,7 +73,7 @@ static v2* getColliderLines(Sword* sword) {
     return lines;
 }
 
-static v2* getAxisRectLines(Rectangle r) {
+static v2* getAxisRectLines(Rect r) {
     v2 topLeft = {r.x, r.y};
     v2 topRight = {r.x + r.width, r.y};
     v2 botLeft = {r.x, r.y + r.height};
@@ -120,7 +120,6 @@ static void spinTask(TASK_PARAMS) {
 
 static void onCollision(Sword* sword, GameObject* other) {
     sword->invulnerableTimer = 0.25;
-    printf("collision\n");
     if (strcmp(other->tag, "rock") == 0) {
         Rock* rock = (Rock*)other->obj;
         rock->hit(rock);
@@ -181,8 +180,8 @@ static void DrawSwordColliderLines(Sword* sword) {
 }
 
 static void control(Sword* sword) {
-    f32 sens = 5 * GetFrameTime();
     f32 angleToMouse = getAngleToMouse(sword);
+    f32 sens = 5 * 2 * GetFrameTime();
     sword->angle = lerpAngle(sword->angle, angleToMouse, sens);
     sword->angle = clampAngle(sword->angle);
 }
@@ -206,7 +205,6 @@ static void use(void* swordP) {
     sword->angleDelta = sword->angle - sword->previousAngle;
     sword->previousAngle = sword->angle;
     if (IsMouseButtonPressed(0) && sword->mouseControl) {
-        printf("Sword used\n");
         SpinData* newData = malloc(sizeof(SpinData));
         *newData = spinData;
         newData->start = GetTime();
@@ -217,9 +215,9 @@ static void use(void* swordP) {
 
 static void render(void* swordP) {
     Sword* sword = (Sword*)swordP;
-    Rectangle src = {0, 0, swordTex.width, swordTex.height};
+    Rect src = {0, 0, swordTex.width, swordTex.height};
 
-    Rectangle dest = sword->rect;
+    Rect dest = sword->rect;
     dest.width = swordTex.width * 1.25;
     dest.height = swordTex.height * 1.25;
     swordOrg = (v2){dest.width / 2, dest.height / 2};

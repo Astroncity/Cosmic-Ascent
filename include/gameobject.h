@@ -1,15 +1,15 @@
 #pragma once
-#include "raylib.h"
+#include "defs.h"
 
 typedef struct GameObject GameObject;
 typedef struct GameObject {
     char* tag;
     void* obj;
-    Rectangle (*getCollider)(GameObject* self);
+    Rect (*getCollider)(GameObject* self);
 } GameObject;
 
 GameObject* createGameObject(char* tag, void* obj,
-                             Rectangle (*getCollider)(GameObject*));
+                             Rect (*getCollider)(GameObject*));
 
 typedef struct GameObjectNode GameObjectNode;
 typedef struct GameObjectNode {

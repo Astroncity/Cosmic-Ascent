@@ -8,7 +8,7 @@
 typedef struct Rock Rock;
 typedef struct Rock {
     Texture2D texture;
-    Rectangle rect;
+    Rect rect;
     RenderData renderData;
     Color cl;
     GameObject* gameobject;

@@ -2,9 +2,6 @@
 #include "defs.h"
 #include "raylib.h"
 
-#define MAX(a, v) ((a) > (v) ? (a) : (v))
-#define MIN(a, v) ((a) < (v) ? (a) : (v))
-
 typedef struct Planet {
     Texture2D texture;
     Texture2D atmosphere;

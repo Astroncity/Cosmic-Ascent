@@ -5,7 +5,7 @@ static Texture2D bigBarTexture;
 static Texture2D bigBarBackground;
 static Texture2D smallBarTexture;
 static Texture2D smallBarBackground;
-bool loaded = false;
+static bool loaded = false;
 
 Bar* BarCreate(f32 x, f32 y, f32 maxValue, bool large) {
     Bar* bar = malloc(sizeof(Bar));
@@ -31,7 +31,7 @@ Bar* BarCreate(f32 x, f32 y, f32 maxValue, bool large) {
 
     bar->barTexture = barTexture;
     bar->background = background;
-    bar->rect = (Rectangle){x, y, background.width, background.height};
+    bar->rect = (Rect){x, y, background.width, background.height};
     bar->value = maxValue;
     bar->oldValue = maxValue;
     bar->maxValue = maxValue;
@@ -39,14 +39,19 @@ Bar* BarCreate(f32 x, f32 y, f32 maxValue, bool large) {
     return bar;
 }
 
-void BarRender(Bar* bar, Color tint) {
+void BarRender(Bar* bar, Color tint, bool drawBackground) {
     bar->currValue = lerp(bar->currValue, bar->value, 0.1f);
 
     f32 scale = bar->currValue / bar->maxValue;
-    Rectangle new = bar->rect;
-    Rectangle src = {0, 0, bar->barTexture.width * scale,
-                     bar->barTexture.height};
+    Rect new = bar->rect;
+    Rect src = {0, 0, bar->barTexture.width * scale,
+                bar->barTexture.height};
     new.width *= scale;
-
+    if (drawBackground) {
+        DrawTexturePro(
+            bar->background,
+            (Rect){0, 0, bar->background.width, bar->background.height},
+            bar->rect, (v2){0, 0}, 0, WHITE);
+    }
     DrawTexturePro(bar->barTexture, src, new, (v2){0, 0}, 0, tint);
 }

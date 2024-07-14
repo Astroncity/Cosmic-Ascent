@@ -1,6 +1,7 @@
 #include "planet.h"
 #include "defs.h"
 #include "raylib.h"
+#include "utils.h"
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -336,6 +337,7 @@ Planet genPlanet(i32 imgSize, bool randomizeColors) {
     free(thumbnailPixels);
 
     Color average = averageColors(3, c1, c2, c3);
+    average = normalizeColor(average);
 
     Color* palette = malloc(sizeof(Color) * 4);
     palette[0] = c1;
@@ -351,20 +353,19 @@ Planet genPlanet(i32 imgSize, bool randomizeColors) {
 }
 
 void drawPlanetThumbnail(v2 pos, Planet* planet) {
-    Rectangle srcT = {0, 0, planet->thumbnail.width,
-                      planet->thumbnail.height};
-    Rectangle destT = {pos.x, pos.y, planet->thumbnail.width,
-                       planet->thumbnail.height};
+    Rect srcT = {0, 0, planet->thumbnail.width, planet->thumbnail.height};
+    Rect destT = {pos.x, pos.y, planet->thumbnail.width,
+                  planet->thumbnail.height};
 
-    Rectangle srcA = {0, 0, planet->thumbnailAtmosphere.width,
-                      planet->thumbnailAtmosphere.height};
+    Rect srcA = {0, 0, planet->thumbnailAtmosphere.width,
+                 planet->thumbnailAtmosphere.height};
 
     // dest of the atmosphere considering that it is atmosScale times bigger
     // than the planet
     float atmosSize = planet->thumbnail.width * atmosScale;
-    Rectangle destA = {pos.x + (destT.width - atmosSize) / 2,
-                       pos.y + (destT.height - atmosSize) / 2, atmosSize,
-                       atmosSize};
+    Rect destA = {pos.x + (destT.width - atmosSize) / 2,
+                  pos.y + (destT.height - atmosSize) / 2, atmosSize,
+                  atmosSize};
 
     DrawTexturePro(planet->thumbnail, srcT, destT, (v2){0, 0}, 0.0f, WHITE);
     DrawTexturePro(planet->thumbnailAtmosphere, srcA, destA, (v2){0, 0},
@@ -373,20 +374,19 @@ void drawPlanetThumbnail(v2 pos, Planet* planet) {
 
 void drawPlanet(Planet* planet, f32 scale) {
     f32 planetScale = globalPlanetScale * scale;
-    Rectangle srcP = {0, 0, planet->size, planet->size};
-    Rectangle srcA = {0, 0, planet->size * atmosScale,
-                      planet->size * atmosScale};
-    Rectangle destP = {planet->pos.x, planet->pos.y,
-                       planet->size * planetScale,
-                       planet->size * planetScale};
+    Rect srcP = {0, 0, planet->size, planet->size};
+    Rect srcA = {0, 0, planet->size * atmosScale,
+                 planet->size * atmosScale};
+    Rect destP = {planet->pos.x, planet->pos.y, planet->size * planetScale,
+                  planet->size * planetScale};
 
     // Draw the planet texture
     DrawTexturePro(planet->texture, srcP, destP, (v2){0, 0}, 0.0f, WHITE);
 
     float atmosSize = planet->size * planetScale * atmosScale;
-    Rectangle destA = {planet->pos.x + (destP.width - atmosSize) / 2,
-                       planet->pos.y + (destP.height - atmosSize) / 2,
-                       atmosSize, atmosSize};
+    Rect destA = {planet->pos.x + (destP.width - atmosSize) / 2,
+                  planet->pos.y + (destP.height - atmosSize) / 2, atmosSize,
+                  atmosSize};
 
     DrawTexturePro(planet->atmosphere, srcA, destA, (v2){0, 0}, 0.0f,
                    WHITE);

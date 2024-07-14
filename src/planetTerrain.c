@@ -1,4 +1,5 @@
 #include "planetTerrain.h"
+#include "defs.h"
 #include "planet.h"
 #include "raylib.h"
 #include "rock.h"
@@ -18,8 +19,8 @@ Color satShiftColor(Color color, f32 shift) {
 static void genObj(Color planetColor) {
     planetColor.a = 255;
     for (i32 i = 0; i < OBJ_COUNT; i++) {
-        i32 x = GetRandomValue(50, MAP_SIZE - 50);
-        i32 y = GetRandomValue(50, MAP_SIZE - 50);
+        i32 x = GetRandomValue(50, screenWidth - 50);
+        i32 y = GetRandomValue(50, screenHeight - 50);
 
         createRock(x, y, planetColor);
     }

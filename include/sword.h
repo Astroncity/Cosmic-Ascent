@@ -19,7 +19,7 @@ typedef struct WeaponData {
 } WeaponData;
 
 typedef struct Sword {
-    Rectangle rect;
+    Rect rect;
     Color cl;
     void (*render)(void*);
     void (*use)(void*);

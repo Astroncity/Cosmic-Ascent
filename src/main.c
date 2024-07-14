@@ -1,5 +1,6 @@
 #include "bar.h"
 #include "defs.h"
+#include "expParticle.h"
 #include "gameobject.h"
 #include "planet.h"
 #include "planetTerrain.h"
@@ -7,6 +8,8 @@
 #include "raylib.h"
 #include "render.h"
 #include "task.h"
+#include "upgradeCard.h"
+#include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -21,64 +24,29 @@ PlanetTerrain* currentTerrain;
 Texture2D UITexture;
 Texture2D botBar;
 Bar* healthBar;
+Bar* ExpBar;
 Player* player;
-
-v2 v2Clamp(v2 vec, v2 min, v2 max) {
-    return (v2){MIN(MAX(vec.x, min.x), max.x),
-                MIN(MAX(vec.y, min.y), max.y)};
-}
-
-void DrawText3D(const char* text, i32 x, i32 y, i32 size, Color color) {
-    for (usize i = 0; i < 5; i++) {
-        i16 tempA = (i16)color.a;
-        tempA -= i * 50;
-        if (tempA < 0) tempA = 0;
-
-        Color cl = (Color){color.r, color.g, color.b, (u8)tempA};
-        DrawTextEx(bestFont, text, (v2){(f32)x, y + (f32)i * 2}, size, 1,
-                   cl);
-    }
-}
-
-void drawScaledWindow(RenderTexture2D target, f32 sw, f32 sh, f32 scale) {
-    f32 tw = (f32)target.texture.width;
-    f32 th = (f32)target.texture.height;
-    Rectangle rect1 = {0.0f, 0.0f, tw, -th};
-    f32 x = (GetScreenWidth() - (sw * scale)) * 0.5f;
-    f32 y = (GetScreenHeight() - (sh * scale)) * 0.5f;
-
-    Rectangle rect2 = {x, y, sw * scale, sh * scale};
-
-    DrawTexturePro(target.texture, rect1, rect2, (v2){0, 0}, 0.0f, WHITE);
-}
-
-v2 getScreenMousePos(f32 scale, i32 sw, i32 sh) {
-    v2 mouseOLD = GetMousePosition();
-    mouse.x =
-        (mouseOLD.x - (GetScreenWidth() - (sw * scale)) * 0.5f) / scale;
-    mouse.y =
-        (mouseOLD.y - (GetScreenHeight() - (sh * scale)) * 0.5f) / scale;
-    mouse = v2Clamp(mouse, (v2){0, 0}, (v2){(f32)sw, (f32)sh});
-
-    return mouse;
-}
 
 void drawUI() {
     v2 pos = {screenWidth / 2.0, 16 * UI_SCALE};
-    Rectangle src = {0, 0, UITexture.width, UITexture.height};
-    Rectangle dest = {pos.x, pos.y, src.width * UI_SCALE,
-                      src.height * UI_SCALE};
+    Rect src = {0, 0, UITexture.width, UITexture.height};
+    Rect dest = {pos.x, pos.y, src.width * UI_SCALE, src.height * UI_SCALE};
     v2 org = {src.width * UI_SCALE / 2, src.height * UI_SCALE / 2};
     DrawTexturePro(UITexture, src, dest, org, 0, WHITE);
 
     healthBar->value = player->health;
-    BarRender(healthBar, (Color){255, 105, 97, 255});
+    ExpBar->value = player->exp;
+    ExpBar->maxValue = player->expThreshold;
+    BarRender(healthBar, (Color){255, 105, 97, 255}, false);
+    BarRender(ExpBar, (Color){167, 199, 231, 255}, false);
     v2 thumbPos = pos; // thumbnail is 24x24
     thumbPos.x -= 12 * UI_SCALE;
     thumbPos.y -= 12 * UI_SCALE;
 
     drawPlanetThumbnail(thumbPos, currentPlanet);
     // DrawFPS(100, 100);
+
+    DrawText(TextFormat("%d", player->level), 294, 6, 10, WHITE);
 }
 
 int main(void) {
@@ -86,7 +54,7 @@ int main(void) {
     SetTraceLogLevel(LOG_ERROR);
     InitWindow(screenWidth, screenHeight, "Planet Generation Test");
     InitAudioDevice();
-    SetMasterVolume(0);
+    SetMasterVolume(1);
     SetTargetFPS(144);
     SetWindowSize(1920, 1080);
 
@@ -98,6 +66,7 @@ int main(void) {
     botBar = LoadTexture("assets/images/barBot.png");
 
     healthBar = BarCreate(163, 16, 100, true);
+    ExpBar = BarCreate(275, 16, 100, true);
 
     // const u16 imgSize = 64;
 
@@ -105,20 +74,24 @@ int main(void) {
     Sword* sword = createSword(player, &mouse, WHITE);
     player->weaponData = (WeaponData){sword, sword->use};
 
+    UpgradeCardInit(player, &mouse);
+
     Planet testPlanet = genPlanet(64, true);
     currentPlanet = &testPlanet;
     testPlanet.pos = (v2){screenWidth - 350, screenHeight / 2.0 - 128};
     PlanetTerrain* terrain = genPlanetTerrain(&testPlanet);
     currentTerrain = terrain;
 
+    ExpParticleInit(player);
+
     while (!WindowShouldClose()) {
 
         f32 scale = MIN((f32)GetScreenWidth() / screenWidth,
                         (float)GetScreenHeight() / screenHeight);
 
-        mouse = getScreenMousePos(scale, screenWidth, screenHeight);
+        mouse = getScreenMousePos(&mouse, scale, screenWidth, screenHeight);
         player->update(player);
-        runAllTasks();
+        ExpParticleUpdateAll();
         runGameObjects();
         // updateParticleSystem(testSys);
 
@@ -129,8 +102,11 @@ int main(void) {
 
         player->render(player);
         renderAll();
+        ExpParticleDrawAll();
         // drawParticleSystem(testSys);
         drawUI();
+        runAllTasks();
+        handleLevelupUI();
 
         DrawText(TextFormat("Mouse: (%f, %f)", mouse.x, mouse.y), 0, 0, 10,
                  WHITE);

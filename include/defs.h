@@ -15,6 +15,7 @@ typedef int32_t i32;
 typedef int64_t i64;
 typedef size_t usize;
 typedef Vector2 v2;
+typedef Rectangle Rect;
 
 #define screenWidth 480
 #define screenHeight 270
