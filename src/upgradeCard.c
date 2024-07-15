@@ -25,7 +25,12 @@ static bool active = false;
 static i32 levelsProcessed = 0;
 static UpgradeCard** activeCards;
 
-void upgradeSwordLength() { printf("Sword Length upgraded\n"); }
+Font alagard;
+
+void upgradeSwordLength() {
+    printf("Sword Length upgraded\n");
+    ((Sword*)plr->weaponData.weapon)->len += 0.1;
+}
 void upgradeSwordDamage() { printf("Sword Damage upgraded\n"); }
 
 void grantDash() {
@@ -42,9 +47,9 @@ void grantDash() {
     }
 
     printf("%s\n", text);
-    i32 len = MeasureTextEx(GetFontDefault(), text, 20, 1).x;
+    i32 len = MeasureTextEx(alagard, text, 20, 1).x;
     v2 pos = {screenWidth / 2.0 - len / 2.0, 230};
-    DrawFlashingText(GetFontDefault(), text, pos, 20, WHITE, 5);
+    DrawFlashingText(alagard, text, pos, 20, WHITE, 5);
 }
 
 void UpgradeCardInit(Player* player, v2* mousePos) {
@@ -70,7 +75,7 @@ void UpgradeCardInit(Player* player, v2* mousePos) {
 
         plr = player;
         mouse = mousePos;
-
+        alagard = LoadFont("assets/fonts/alagard.ttf");
         cardTexture = LoadTexture("assets/images/card.png");
         cardFrame = LoadTexture("assets/images/levelupFrame.png");
         loaded = true;

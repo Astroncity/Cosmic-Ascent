@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 const char* TEXTURE_PATH = "assets/images/rock.png";
-const i32 RENDER_PRIORITY = 3;
+const i32 RENDER_PRIORITY = 5;
 const i32 ROCK_EXP = 2;
 Texture2D rockTexture;
 Sound rockBreakfx;
@@ -28,12 +28,15 @@ static void drawCol(Rock* rock) {
     DrawRectangleLines(cpy.x, cpy.y, cpy.width, cpy.height, GREEN);
 }
 
-static void render(void* rockP) {
+static void update(void* rockP) {
     Rock* rock = (Rock*)rockP;
-
     if (rock->invulnerableTimer > 0) {
         rock->invulnerableTimer -= GetFrameTime();
     }
+}
+
+static void render(void* rockP) {
+    Rock* rock = (Rock*)rockP;
 
     Rect dest = rock->rect;
 
@@ -65,9 +68,11 @@ static void destroy(Rock* self) {
     free(self);
 }
 
-void hit(Rock* self) {
+static bool hit(Rock* self) {
     if (self->invulnerableTimer > 0) {
-        return;
+        printf("rock invulnerable\n");
+        printf("timer: %f\n", self->invulnerableTimer);
+        return false;
     }
 
     if (!IsSoundReady(rockHitfx)) {
@@ -75,12 +80,14 @@ void hit(Rock* self) {
     }
     PlaySound(rockHitfx);
 
-    self->invulnerableTimer = 0.25;
+    self->invulnerableTimer = 0.1;
     self->health -= 1;
     self->healthBar->value = self->health;
     if (self->health <= 0) {
         destroy(self);
+        return true;
     }
+    return false;
 }
 
 Rock* createRock(f32 x, f32 y, Color cl) {
@@ -97,8 +104,10 @@ Rock* createRock(f32 x, f32 y, Color cl) {
     rock->hit = hit;
     rock->health = 3;
     rock->maxHealth = 3;
+    rock->invulnerableTimer = 0;
     rock->healthBar = BarCreate(x - 8, y - 10, rock->maxHealth, false);
     addRender(rock->renderData);
-    rock->gameobject = createGameObject("rock", rock, getRockCollider);
+    rock->gameobject =
+        createGameObject("rock", rock, getRockCollider, update);
     return rock;
 }

@@ -43,14 +43,22 @@ void removeGameObject(GameObject* obj) {
     }
 }
 
-void runGameObjects() {}
+void runGameObjects() {
+    GameObjectNode* curr = gameObjectHead;
+    while (curr != NULL) {
+        curr->obj->update(curr->obj->obj);
+        curr = curr->next;
+    }
+}
 
 GameObject* createGameObject(char* tag, void* obj,
-                             Rect (*getCollider)(GameObject*)) {
+                             Rect (*getCollider)(GameObject*),
+                             void (*update)(void*)) {
     GameObject* gameObject = malloc(sizeof(GameObject));
     gameObject->tag = tag;
     gameObject->obj = obj;
     gameObject->getCollider = getCollider;
+    gameObject->update = update;
     addGameObject(gameObject);
     return gameObject;
 }

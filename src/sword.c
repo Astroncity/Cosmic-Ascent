@@ -18,6 +18,8 @@ static i32 distanceFromPlr = 25;
 static Texture2D swordTex;
 static Texture2D swordEffect;
 static bool loadedTexture = false;
+static f32 defWidth;
+static f32 defHeight;
 
 v2 swordOrg;
 
@@ -118,31 +120,34 @@ static void spinTask(TASK_PARAMS) {
     sword->angle = clampAngle(sword->angle);
 }
 
-static void onCollision(Sword* sword, GameObject* other) {
+static bool onCollision(Sword* sword, GameObject* other) {
     sword->invulnerableTimer = 0.25;
     if (strcmp(other->tag, "rock") == 0) {
         Rock* rock = (Rock*)other->obj;
-        rock->hit(rock);
-        sword->underRecoil = true;
-        SpinData* newData = malloc(sizeof(SpinData));
-        *newData = recoilData;
+        return rock->hit(rock);
+        // sword->underRecoil = true;
+        //  SpinData* newData = malloc(sizeof(SpinData));
+        //*newData = recoilData;
 
-        newData->speed = sword->angleDelta * 100;
-        newData->start = GetTime();
-        newData->sword = sword;
-        createTask(newData, spinTask);
+        // newData->speed = sword->angleDelta * 100;
+        // newData->start = GetTime();
+        // newData->sword = sword;
+        // createTask(newData, spinTask);
     }
+    return false;
 }
 
 static bool handleCollision(Sword* sword) {
-    // assume other collider is axis alligned
-    if (sword->invulnerableTimer > 0) {
-        return false;
-    }
+    // assume other collider is axis aligned
+    // if (sword->invulnerableTimer > 0) return false;
+    if (sword->angleDelta < 1) return false;
     v2* swordLines = getColliderLines(sword);
     bool hit = false;
+    bool rmObj = false;
+    i32 iterations = 0;
 
     GameObjectNode* curr = gameObjectHead;
+
     while (curr != NULL) {
         v2* otherLines =
             getAxisRectLines(curr->obj->getCollider(curr->obj));
@@ -151,18 +156,26 @@ static bool handleCollision(Sword* sword) {
                 if (lineLineIntersection(swordLines[i], swordLines[i + 1],
                                          otherLines[i],
                                          otherLines[i + 1])) {
-                    onCollision(sword, curr->obj);
+                    rmObj = onCollision(sword, curr->obj);
                     hit = true;
-                    free(otherLines);
-                    goto cleanup;
+                    goto main_loop;
                 }
             }
         }
+    main_loop:
+        if (rmObj) {
+            curr = gameObjectHead;
+            for (i32 i = 0; i < iterations; i++) {
+                curr = curr->next;
+            }
+        } else {
+            curr = curr->next;
+        }
         free(otherLines);
-        curr = curr->next;
+        iterations++;
     }
 
-cleanup:
+    // cleanup:
     free(swordLines);
     return hit;
 }
@@ -191,10 +204,14 @@ static void use(void* swordP) {
     sword->invulnerableTimer -= GetFrameTime();
     sword->rect.x = sword->owner->rect.x;
     sword->rect.y = sword->owner->rect.y;
+    sword->rect.width = defWidth * sword->len;
+    sword->rect.height = defHeight * sword->len;
 
     if (sword->mouseControl) control(sword);
-    sword->rect.x += cos(DEG2RAD * sword->angle) * distanceFromPlr;
-    sword->rect.y += sin(DEG2RAD * sword->angle) * distanceFromPlr;
+    sword->rect.x += cos(DEG2RAD * sword->angle) * distanceFromPlr *
+                     (1 + sword->len / 5);
+    sword->rect.y += sin(DEG2RAD * sword->angle) * distanceFromPlr *
+                     (1 + sword->len / 5);
     if (handleCollision(sword)) {
         sword->rect.x = sword->prevPos.x;
         sword->rect.y = sword->prevPos.y;
@@ -218,8 +235,6 @@ static void render(void* swordP) {
     Rect src = {0, 0, swordTex.width, swordTex.height};
 
     Rect dest = sword->rect;
-    dest.width = swordTex.width * 1.25;
-    dest.height = swordTex.height * 1.25;
     swordOrg = (v2){dest.width / 2, dest.height / 2};
 
     DrawTexturePro(swordTex, src, dest, swordOrg,
@@ -235,6 +250,8 @@ Sword* createSword(Player* owner, v2* mouse, Color cl) {
         swordTex = LoadTexture("assets/images/sword.png");
         swordEffect = LoadTexture("assets/images/attackEff.png");
         SetTextureFilter(swordTex, TEXTURE_FILTER_POINT);
+        defWidth = swordTex.width * 1.25;
+        defHeight = swordTex.height * 1.25;
     }
     sword->cl = cl;
     sword->render = render;
@@ -245,6 +262,7 @@ Sword* createSword(Player* owner, v2* mouse, Color cl) {
     sword->rect.height = swordTex.height * 1.25;
     sword->mouseControl = true;
     sword->invulnerableTimer = 0;
+    sword->len = 1;
     addRender((RenderData){sword, render, 0});
     return sword;
 }

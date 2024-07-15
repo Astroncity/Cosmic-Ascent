@@ -7,6 +7,7 @@
 #include "player.h"
 #include "raylib.h"
 #include "render.h"
+#include "slime.h"
 #include "task.h"
 #include "upgradeCard.h"
 #include "utils.h"
@@ -75,6 +76,7 @@ int main(void) {
     player->weaponData = (WeaponData){sword, sword->use};
 
     UpgradeCardInit(player, &mouse);
+    SlimeInit(player, &mouse);
 
     Planet testPlanet = genPlanet(64, true);
     currentPlanet = &testPlanet;
@@ -83,6 +85,7 @@ int main(void) {
     currentTerrain = terrain;
 
     ExpParticleInit(player);
+    // SlimeCreate();
 
     while (!WindowShouldClose()) {
 

@@ -1,6 +1,6 @@
 # Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -L lib/ -I include/ -lraylib -lm
+CFLAGS = -Wall -Wextra -Werror -std=c99 -ggdb -L lib/ -I include/ -lraylib -lm
 DEPFLAGS = -MMD -MP
 
 # Directories
