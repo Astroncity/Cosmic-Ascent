@@ -70,8 +70,6 @@ static void destroy(Rock* self) {
 
 static bool hit(Rock* self) {
     if (self->invulnerableTimer > 0) {
-        printf("rock invulnerable\n");
-        printf("timer: %f\n", self->invulnerableTimer);
         return false;
     }
 

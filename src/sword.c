@@ -26,7 +26,7 @@ v2 swordOrg;
 SpinData spinData = {.start = 0,
                      .runTime = 1,
                      .direction = 1,
-                     .speed = 360 * 2,
+                     .speed = 360 * 4,
                      .type = ATTACK_SPIN,
                      .sword = NULL};
 

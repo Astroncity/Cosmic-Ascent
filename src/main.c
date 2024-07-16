@@ -85,7 +85,7 @@ int main(void) {
     currentTerrain = terrain;
 
     ExpParticleInit(player);
-    // SlimeCreate();
+    SlimeCreate();
 
     while (!WindowShouldClose()) {
 

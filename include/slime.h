@@ -3,8 +3,8 @@
 #include "player.h"
 
 typedef struct Slime {
+    f32 frame;
     Rect rect;
-    Texture2D texture;
 } Slime;
 
 Slime* SlimeCreate();
