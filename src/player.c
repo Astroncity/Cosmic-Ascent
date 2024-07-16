@@ -1,4 +1,5 @@
 #include "player.h"
+#include "globals.h"
 #include "raylib.h"
 #include "task.h"
 #include <stdio.h>
@@ -11,9 +12,9 @@ static Texture2D playerTextures[4];
 static bool loadedTextures = false;
 static bool dashing = false;
 static f32 dashTimer = 0;
+static f32 immunityTimer = 0;
 
 static u8 playerDirection = 0;
-static Player* globalPlayer;
 
 static i32 getExpThreshold(i32 level) { return level * level + 25; }
 
@@ -136,6 +137,16 @@ static void update(void* p) {
     if (plr->exp >= plr->expThreshold) {
         onLevelup(plr);
     }
+
+    if (immunityTimer > 0) {
+        immunityTimer -= GetFrameTime();
+    }
+}
+
+void damagePlayer(f32 dmg) {
+    if (immunityTimer > 0) return;
+    player->health -= dmg;
+    immunityTimer = 0.1;
 }
 
 Player* PlayerCreate(f32 x, f32 y) {
@@ -154,6 +165,5 @@ Player* PlayerCreate(f32 x, f32 y) {
     player->level = 0;
     player->canDash = false;
     player->dashCooldown = 5.0;
-    globalPlayer = player;
     return player;
 }

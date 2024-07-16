@@ -1,6 +1,7 @@
 #include "slime.h"
 #include "gameobject.h"
 #include "globals.h"
+#include "player.h"
 #include "render.h"
 #include <math.h>
 
@@ -44,7 +45,7 @@ static void render(void* slimeP) {
 
 static void handleCollision(Slime* slime) {
     if (CheckCollisionRecs(player->rect, slime->rect)) {
-        player->health -= 1;
+        damagePlayer(1);
     }
 }
 

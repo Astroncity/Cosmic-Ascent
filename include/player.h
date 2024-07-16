@@ -19,3 +19,4 @@ typedef struct Player {
 
 Player* PlayerCreate(f32 x, f32 y);
 Rect getPlayerCollider(Player* plr);
+void damagePlayer(f32 dmg);
