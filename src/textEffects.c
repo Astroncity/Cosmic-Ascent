@@ -1,4 +1,5 @@
 #include "textEffects.h"
+#include "render.h"
 #include "task.h"
 #include <stdio.h>
 #include <string.h>
@@ -33,7 +34,14 @@ typedef struct FlashingTextData {
     Font font;
     i32 size;
     bool decreasing;
+    RenderData renderData;
 } FlashingTextData;
+
+static void renderText(void* data) {
+    FlashingTextData* textData = (FlashingTextData*)data;
+    DrawTextEx(textData->font, textData->text, textData->pos,
+               textData->size, 1, textData->color);
+}
 
 static void flashingTextTask(TASK_PARAMS) {
     FlashingTextData* data = (FlashingTextData*)taskData;
@@ -42,13 +50,11 @@ static void flashingTextTask(TASK_PARAMS) {
 
     if (ended && data->color.a == 0) {
         task->setForDeletion = true;
+        removeRender(data->renderData);
         free((char*)data->text);
         free(data);
         return;
     }
-
-    DrawTextEx(data->font, data->text, data->pos, data->size, 1,
-               data->color);
 
     i32 alpha = data->color.a;
 
@@ -81,6 +87,8 @@ void DrawFlashingText(Font font, const char* text, v2 pos, i32 size,
     data->font = font;
     data->size = size;
     data->decreasing = true;
+    data->renderData = (RenderData){data, renderText, 100};
+    addRender(data->renderData);
 
     createTask(data, flashingTextTask);
 }

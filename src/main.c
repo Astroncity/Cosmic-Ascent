@@ -85,6 +85,7 @@ int main(void) {
         ExpParticleUpdateAll();
         runGameObjects();
         // updateParticleSystem(testSys);
+        runAllTasks();
 
         BeginTextureMode(target);
 
@@ -96,7 +97,6 @@ int main(void) {
         ExpParticleDrawAll();
         // drawParticleSystem(testSys);
         drawUI();
-        runAllTasks();
         handleLevelupUI();
 
         DrawText(TextFormat("Mouse: (%f, %f)", mouse.x, mouse.y), 0, 0, 10,
