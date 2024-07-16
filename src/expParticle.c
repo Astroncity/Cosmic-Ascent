@@ -1,27 +1,15 @@
 #include "expParticle.h"
-#include "player.h"
-#include "raylib.h"
+#include "globals.h"
 #include <stdio.h>
+
 #define EXP_PARTICLE_MAX 1000
 #define EXP_PARTICLE_RAND 50
 #define EXP_PARTICLE_RAD 3
 
 static i32 expParticleCount = 0;
 static ExpParticle expParticles[EXP_PARTICLE_MAX];
-static Player* plr;
-static bool loaded = false;
-
-void ExpParticleInit(Player* player) {
-    plr = player;
-    loaded = true;
-}
 
 void ExpParticleCreate(v2 pos, Color cl, i32 value) {
-    if (!loaded) {
-        fprintf(stderr,
-                "ExpParticleCreate called before ExpParticleInit\n");
-    }
-
     if (expParticleCount < EXP_PARTICLE_MAX) {
         ExpParticle* p = &expParticles[expParticleCount];
         p->pos = pos;
@@ -48,8 +36,8 @@ void ExpParticleUpdateAll() {
     while (i < expParticleCount) {
         ExpParticle* p = &expParticles[i];
         if (CheckCollisionCircleRec(p->pos, EXP_PARTICLE_RAD,
-                                    getPlayerCollider(plr))) {
-            plr->exp += p->value;
+                                    getPlayerCollider(player))) {
+            player->exp += p->value;
             expParticles[i] = expParticles[expParticleCount - 1];
             expParticleCount--;
         } else {

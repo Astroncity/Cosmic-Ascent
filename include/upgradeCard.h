@@ -1,6 +1,5 @@
 #pragma once
 #include "defs.h"
-#include "player.h"
 
 typedef enum UpgradeType {
     UPGRADE_SWORD_LENGTH,
@@ -16,7 +15,6 @@ typedef struct UpgradeCard {
     bool hovering;
 } UpgradeCard;
 
-void UpgradeCardInit(Player* player, v2* mousePos);
 UpgradeCard* UpgradeCardCreate();
 void UpgradeCardDraw(UpgradeCard* card);
 void UpgradeFrameDraw();

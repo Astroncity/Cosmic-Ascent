@@ -1,5 +1,6 @@
 #include "planetTerrain.h"
 #include "defs.h"
+#include "globals.h"
 #include "planet.h"
 #include "raylib.h"
 #include "rock.h"

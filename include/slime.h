@@ -8,4 +8,3 @@ typedef struct Slime {
 } Slime;
 
 Slime* SlimeCreate();
-void SlimeInit(Player* plr, v2* mousePos);

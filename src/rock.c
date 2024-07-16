@@ -57,6 +57,7 @@ static void render(void* rockP) {
 static void destroy(Rock* self) {
     if (!IsSoundReady(rockBreakfx)) {
         rockBreakfx = LoadSound("assets/sounds/rockBreakfx.wav");
+        SetSoundVolume(rockBreakfx, 0.75);
     }
     PlaySound(rockBreakfx);
 

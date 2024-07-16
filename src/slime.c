@@ -1,25 +1,21 @@
 #include "slime.h"
 #include "gameobject.h"
-#include "raylib.h"
+#include "globals.h"
 #include "render.h"
 #include <math.h>
 
 static Texture2D slimeAtlas;
-static Player* player;
 
 static bool loaded = false;
 
 #define SLIME_SPEED 10
 #define RENDER_PRIORITY 3
-static v2* mouse;
 static i32 frameCount;
 
-void SlimeInit(Player* plr, v2* mousePos) {
+static void SlimeInit() {
     if (!loaded) {
         slimeAtlas = LoadTexture("assets/images/slimeSheet.png");
         frameCount = slimeAtlas.width / 16;
-        player = plr;
-        mouse = mousePos;
         loaded = true;
     }
 }
@@ -66,6 +62,7 @@ static Rect getCollider(GameObject* gameObject) {
 }
 
 Slime* SlimeCreate() {
+    SlimeInit();
     Slime* slime = malloc(sizeof(Slime));
     slime->rect = (Rect){200, 100, 16, 16};
     slime->frame = 0;

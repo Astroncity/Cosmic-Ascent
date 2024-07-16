@@ -1,5 +1,5 @@
 #include "upgradeCard.h"
-#include "raylib.h"
+#include "globals.h"
 #include "textEffects.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,8 +19,6 @@ static bool loaded = false;
 static v2 initCardPos = {111, 104};
 static i32 cardOffset = 97;
 static i32 cardsDrawn = 0;
-static Player* plr;
-static v2* mouse;
 static bool active = false;
 static i32 levelsProcessed = 0;
 static UpgradeCard** activeCards;
@@ -29,21 +27,21 @@ Font alagard;
 
 void upgradeSwordLength() {
     printf("Sword Length upgraded\n");
-    ((Sword*)plr->weaponData.weapon)->len += 0.1;
+    ((Sword*)player->weaponData.weapon)->len += 0.1;
 }
 void upgradeSwordDamage() { printf("Sword Damage upgraded\n"); }
 
 void grantDash() {
     char text[64];
 
-    if (!plr->canDash) {
-        plr->canDash = true;
-        plr->dashCooldown = 5;
+    if (!player->canDash) {
+        player->canDash = true;
+        player->dashCooldown = 5;
         snprintf(text, sizeof(text), "PRESS SPACE TO DASH");
     } else {
         snprintf(text, sizeof(text), "COOLDOWN %.2f -> %.2f",
-                 plr->dashCooldown, plr->dashCooldown * 0.9);
-        plr->dashCooldown *= 0.9;
+                 player->dashCooldown, player->dashCooldown * 0.9);
+        player->dashCooldown *= 0.9;
     }
 
     printf("%s\n", text);
@@ -52,7 +50,7 @@ void grantDash() {
     DrawFlashingText(alagard, text, pos, 20, WHITE, 5);
 }
 
-void UpgradeCardInit(Player* player, v2* mousePos) {
+void UpgradeCardInit() {
     if (!loaded) {
         ICON_TEXTURES = malloc(sizeof(Texture2D) * 5);
         ICON_TEXTURES[0] = LoadTexture("assets/images/swordLength.png");
@@ -73,8 +71,6 @@ void UpgradeCardInit(Player* player, v2* mousePos) {
         UPGRADE_FUNCS[1] = upgradeSwordDamage;
         UPGRADE_FUNCS[2] = grantDash;
 
-        plr = player;
-        mouse = mousePos;
         alagard = LoadFont("assets/fonts/alagard.ttf");
         cardTexture = LoadTexture("assets/images/card.png");
         cardFrame = LoadTexture("assets/images/levelupFrame.png");
@@ -85,10 +81,7 @@ void UpgradeCardInit(Player* player, v2* mousePos) {
 void UpgradeFrameDraw() { DrawTextureV(cardFrame, (v2){99, 49}, WHITE); }
 
 UpgradeCard* UpgradeCardCreate() {
-    if (!loaded) {
-        fprintf(stderr, "UpgradeCard not initialized\n");
-        exit(1);
-    }
+    UpgradeCardInit();
     UpgradeCard* card = malloc(sizeof(UpgradeCard));
     i32 type = GetRandomValue(0, 2);
     card->type = type;
@@ -103,7 +96,7 @@ void UpgradeCardUpdate(UpgradeCard* card) {
     Rect rect = {card->pos.x, card->pos.y, cardTexture.width,
                  cardTexture.height};
 
-    if (CheckCollisionPointRec(*mouse, rect)) {
+    if (CheckCollisionPointRec(mouse, rect)) {
         card->hovering = true;
     } else {
         card->hovering = false;
@@ -145,12 +138,7 @@ static void initUI() {
 }
 
 void handleLevelupUI() {
-    if (!loaded) {
-        fprintf(stderr, "UpgradeCard not initialized\n");
-        exit(1);
-    }
-
-    if (plr->level > levelsProcessed) {
+    if (player->level > levelsProcessed) {
         if (!active) initUI();
         UpgradeFrameDraw();
         for (int i = 0; i < 3; i++) {

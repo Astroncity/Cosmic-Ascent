@@ -2,10 +2,7 @@
 #include "defs.h"
 #include "expParticle.h"
 #include "gameobject.h"
-#include "planet.h"
-#include "planetTerrain.h"
-#include "player.h"
-#include "raylib.h"
+#include "globals.h"
 #include "render.h"
 #include "slime.h"
 #include "task.h"
@@ -14,19 +11,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-v2 mouse;
 Font bestFont;
 
 #define UI_SCALE 1
-
-Planet* currentPlanet;
-PlanetTerrain* currentTerrain;
 
 Texture2D UITexture;
 Texture2D botBar;
 Bar* healthBar;
 Bar* ExpBar;
-Player* player;
 
 void drawUI() {
     v2 pos = {screenWidth / 2.0, 16 * UI_SCALE};
@@ -75,16 +67,12 @@ int main(void) {
     Sword* sword = createSword(player, &mouse, WHITE);
     player->weaponData = (WeaponData){sword, sword->use};
 
-    UpgradeCardInit(player, &mouse);
-    SlimeInit(player, &mouse);
-
     Planet testPlanet = genPlanet(64, true);
     currentPlanet = &testPlanet;
     testPlanet.pos = (v2){screenWidth - 350, screenHeight / 2.0 - 128};
     PlanetTerrain* terrain = genPlanetTerrain(&testPlanet);
     currentTerrain = terrain;
 
-    ExpParticleInit(player);
     SlimeCreate();
 
     while (!WindowShouldClose()) {
