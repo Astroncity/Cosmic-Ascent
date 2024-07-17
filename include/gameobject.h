@@ -7,6 +7,7 @@ typedef struct GameObject {
     void* obj;
     Rect (*getCollider)(GameObject* self);
     void (*update)(void* self);
+    bool markedForDeletion;
 } GameObject;
 
 typedef struct GameObjectNode GameObjectNode;

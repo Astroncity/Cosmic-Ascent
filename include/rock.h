@@ -15,6 +15,7 @@ typedef struct Rock {
     Bar* healthBar;
     i32 health;
     i32 maxHealth;
+    f32 invulnerableTimer;
     bool (*hit)(Rock* self);
 } Rock;
 

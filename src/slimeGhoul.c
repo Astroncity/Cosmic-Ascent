@@ -54,6 +54,13 @@ static void updateBar(SlimeGhoul* slime) {
     bar->value = slime->health;
 }
 
+static void destroy(SlimeGhoul* self) {
+    removeRender((RenderData){self, render, RENDER_PRIORITY});
+    removeGameObject(self->gameobject);
+    free(self->healthBar);
+    free(self);
+}
+
 static void update(void* ghoulP) {
     SlimeGhoul* ghoul = (SlimeGhoul*)ghoulP;
     v2 playerPos = {player->rect.x, player->rect.y};
@@ -67,6 +74,10 @@ static void update(void* ghoulP) {
     updateBar(ghoul);
     handleCollision(ghoul);
     ghoul->projectileTimer += GetFrameTime();
+
+    if (ghoul->health <= 0) {
+        destroy(ghoul);
+    }
 
     if (ghoul->projectileTimer > GHOUL_PROJ_COOLDOWN) {
         ghoul->projectileTimer = 0;
@@ -90,7 +101,8 @@ SlimeGhoul* SlimeGhoulCreate() {
     ghoul->health = ghoul->maxHealth;
     ghoul->healthBar = BarCreate(0, 0, ghoul->maxHealth, false);
 
-    createGameObject("slime ghoul", ghoul, getCollider, update);
+    ghoul->gameobject =
+        createGameObject("slime ghoul", ghoul, getCollider, update);
     addRender((RenderData){ghoul, render, RENDER_PRIORITY});
     return ghoul;
 }

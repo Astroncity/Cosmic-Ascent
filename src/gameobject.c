@@ -23,31 +23,39 @@ void addGameObject(GameObject* obj) {
 
 void removeGameObject(GameObject* obj) {
     GameObjectNode* curr = gameObjectHead;
-    GameObjectNode* prev = NULL;
 
     while (curr != NULL) {
         if (curr->obj == obj) {
-            if (prev == NULL) {
-                gameObjectHead = curr->next;
-            } else {
-                prev->next = curr->next;
-            }
-
-            GameObjectNode* temp = curr;
-            curr = curr->next;
-            free(temp);
-        } else {
-            prev = curr;
-            curr = curr->next;
+            obj->markedForDeletion = true;
+            return;
         }
+        curr = curr->next;
     }
 }
 
 void runGameObjects() {
     GameObjectNode* curr = gameObjectHead;
+    GameObjectNode* prev = NULL;
+
     while (curr != NULL) {
-        curr->obj->update(curr->obj->obj);
-        curr = curr->next;
+        if (curr->obj->markedForDeletion) {
+            GameObjectNode* temp = curr;
+
+            if (prev == NULL) {
+                // head node is marked for deletion
+                gameObjectHead = curr->next;
+            } else {
+                prev->next = curr->next;
+            }
+
+            curr = curr->next;
+            free(temp->obj);
+            free(temp);
+        } else {
+            curr->obj->update(curr->obj->obj);
+            prev = curr;
+            curr = curr->next;
+        }
     }
 }
 
@@ -59,6 +67,7 @@ GameObject* createGameObject(char* tag, void* obj,
     gameObject->obj = obj;
     gameObject->getCollider = getCollider;
     gameObject->update = update;
+    gameObject->markedForDeletion = false;
     addGameObject(gameObject);
     return gameObject;
 }

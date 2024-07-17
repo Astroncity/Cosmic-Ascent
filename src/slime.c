@@ -52,6 +52,13 @@ static void updateBar(Slime* slime) {
     bar->value = slime->health;
 }
 
+static void destroy(Slime* self) {
+    removeRender((RenderData){self, render, RENDER_PRIORITY});
+    removeGameObject(self->gameobject);
+    free(self->healthBar);
+    free(self);
+}
+
 static void update(void* slimeP) {
     Slime* slime = (Slime*)slimeP;
     v2 playerPos = {player->rect.x, player->rect.y};
@@ -63,6 +70,10 @@ static void update(void* slimeP) {
 
     updateBar(slime);
     handleCollision(slime);
+
+    if (slime->health <= 0) {
+        destroy(slime);
+    }
 }
 
 static Rect getCollider(GameObject* gameObject) {
@@ -77,7 +88,8 @@ Slime* SlimeCreate() {
     slime->maxHealth = 100;
     slime->health = slime->maxHealth;
     slime->healthBar = BarCreate(0, 0, slime->maxHealth, false);
-    createGameObject("slime", slime, getCollider, update);
+    slime->gameobject =
+        createGameObject("slime", slime, getCollider, update);
     addRender((RenderData){slime, render, RENDER_PRIORITY});
     return slime;
 }
