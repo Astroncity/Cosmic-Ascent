@@ -88,3 +88,10 @@ v2 v2Clamp(v2 vec, v2 min, v2 max) {
     return (v2){MIN(MAX(vec.x, min.x), max.x),
                 MIN(MAX(vec.y, min.y), max.y)};
 }
+
+f32 getAngleToPoint(v2 a, v2 b) {
+    v2 diff;
+    diff.x = b.x - a.x;
+    diff.y = b.y - a.y;
+    return atan2(diff.y, diff.x) * RAD2DEG;
+}

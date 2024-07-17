@@ -5,6 +5,7 @@
 #include "globals.h"
 #include "render.h"
 #include "slime.h"
+#include "slimeGhoul.h"
 #include "task.h"
 #include "upgradeCard.h"
 #include "utils.h"
@@ -30,8 +31,10 @@ void drawUI() {
     healthBar->value = player->health;
     ExpBar->value = player->exp;
     ExpBar->maxValue = player->expThreshold;
+
     BarRender(healthBar, (Color){255, 105, 97, 255}, false);
     BarRender(ExpBar, (Color){167, 199, 231, 255}, false);
+
     v2 thumbPos = pos; // thumbnail is 24x24
     thumbPos.x -= 12 * UI_SCALE;
     thumbPos.y -= 12 * UI_SCALE;
@@ -74,6 +77,7 @@ int main(void) {
     currentTerrain = terrain;
 
     SlimeCreate();
+    SlimeGhoulCreate();
 
     while (!WindowShouldClose()) {
 

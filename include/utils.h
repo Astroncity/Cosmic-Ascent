@@ -13,3 +13,4 @@ v2 RotatePoint(v2 point, v2 origin, f32 angle);
 v2 v2Clamp(v2 vec, v2 min, v2 max);
 void drawScaledWindow(RenderTexture2D target, f32 sw, f32 sh, f32 scale);
 v2 getScreenMousePos(v2* mouse, f32 scale, i32 sw, i32 sh);
+f32 getAngleToPoint(v2 a, v2 b);

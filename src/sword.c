@@ -1,5 +1,6 @@
 #include "sword.h"
 #include "gameobject.h"
+#include "globals.h"
 #include "player.h"
 #include "raylib.h"
 #include "render.h"
@@ -36,13 +37,6 @@ SpinData recoilData = {.start = 0,
                        .speed = 360 * 3,
                        .type = RECOIL_SPIN,
                        .sword = NULL};
-
-static f32 getAngleToMouse(Sword* sword) {
-    v2 diff;
-    diff.x = sword->mouse->x - sword->owner->rect.x;
-    diff.y = sword->mouse->y - sword->owner->rect.y;
-    return atan2(diff.y, diff.x) * RAD2DEG;
-}
 
 static v2* getColliderLines(Sword* sword) {
     Rect r = sword->rect;
@@ -193,7 +187,8 @@ static void DrawSwordColliderLines(Sword* sword) {
 }
 
 static void control(Sword* sword) {
-    f32 angleToMouse = getAngleToMouse(sword);
+    v2 swordPos = {sword->rect.x, sword->rect.y};
+    f32 angleToMouse = getAngleToPoint(swordPos, mouse);
     f32 sens = 5 * 2 * GetFrameTime();
     sword->angle = lerpAngle(sword->angle, angleToMouse, sens);
     sword->angle = clampAngle(sword->angle);

@@ -3,6 +3,7 @@
 #include "globals.h"
 #include "player.h"
 #include "render.h"
+#include "utils.h"
 #include <math.h>
 
 static Texture2D slimeAtlas;
@@ -19,13 +20,6 @@ static void SlimeInit() {
         frameCount = slimeAtlas.width / 16;
         loaded = true;
     }
-}
-
-static f32 getAngleToPlayer(Slime* slime) {
-    v2 diff;
-    diff.x = player->rect.x - slime->rect.x;
-    diff.y = player->rect.y - slime->rect.y;
-    return atan2(diff.y, diff.x) * RAD2DEG;
 }
 
 static void render(void* slimeP) {
@@ -51,7 +45,9 @@ static void handleCollision(Slime* slime) {
 
 static void update(void* slimeP) {
     Slime* slime = (Slime*)slimeP;
-    f32 ang = getAngleToPlayer(slime);
+    v2 playerPos = {player->rect.x, player->rect.y};
+    v2 slimePos = {slime->rect.x, slime->rect.y};
+    f32 ang = getAngleToPoint(slimePos, playerPos);
     slime->rect.x += cos(ang * DEG2RAD) * SLIME_SPEED * GetFrameTime();
     slime->rect.y += sin(ang * DEG2RAD) * SLIME_SPEED * GetFrameTime();
     slime->frame = fmodf(slime->frame + 0.25, frameCount);
