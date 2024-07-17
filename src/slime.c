@@ -36,7 +36,7 @@ static void render(void* slimeP) {
     Rect dest = {slime->rect.x, slime->rect.y, 16, 16};
 
     DrawTexturePro(slimeAtlas, src, dest, (Vector2){0, 0}, 0, WHITE);
-    BarRender(slime->healthBar, WHITE, true);
+    BarRender(slime->healthBar, GREEN, true);
 }
 
 static void handleCollision(Slime* slime) {

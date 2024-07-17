@@ -38,12 +38,20 @@ static void render(void* ghoulP) {
     Rect dest = {ghoul->rect.x, ghoul->rect.y, 16, 16};
 
     DrawTexturePro(slimeGhoulAtlas, src, dest, (Vector2){0, 0}, 0, WHITE);
+    BarRender(ghoul->healthBar, GREEN, true);
 }
 
 static void handleCollision(SlimeGhoul* slime) {
     if (CheckCollisionRecs(getPlayerCollider(player), slime->rect)) {
         damagePlayer(1);
     }
+}
+
+static void updateBar(SlimeGhoul* slime) {
+    Bar* bar = slime->healthBar;
+    bar->rect.x = slime->rect.x;
+    bar->rect.y = slime->rect.y;
+    bar->value = slime->health;
 }
 
 static void update(void* ghoulP) {
@@ -56,6 +64,7 @@ static void update(void* ghoulP) {
     ghoul->rect.y += sin(ang * DEG2RAD) * GHOUL_SPEED * GetFrameTime();
 
     ghoul->frame = fmodf(ghoul->frame + 0.10, frameCount);
+    updateBar(ghoul);
     handleCollision(ghoul);
     ghoul->projectileTimer += GetFrameTime();
 
@@ -77,6 +86,9 @@ SlimeGhoul* SlimeGhoulCreate() {
     ghoul->rect = (Rect){100, 100, 16, 16};
     ghoul->frame = 0;
     ghoul->projectileTimer = 0;
+    ghoul->maxHealth = 100;
+    ghoul->health = ghoul->maxHealth;
+    ghoul->healthBar = BarCreate(0, 0, ghoul->maxHealth, false);
 
     createGameObject("slime ghoul", ghoul, getCollider, update);
     addRender((RenderData){ghoul, render, RENDER_PRIORITY});
