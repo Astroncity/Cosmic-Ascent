@@ -5,6 +5,8 @@
 #include "raylib.h"
 #include "render.h"
 #include "rock.h"
+#include "slime.h"
+#include "slimeGhoul.h"
 #include "task.h"
 #include "utils.h"
 #include <math.h>
@@ -119,6 +121,14 @@ static bool onCollision(Sword* sword, GameObject* other) {
     if (strcmp(other->tag, "rock") == 0) {
         Rock* rock = (Rock*)other->obj;
         return rock->hit(rock);
+    }
+    if (strcmp(other->tag, "slime") == 0) {
+        Slime* slime = (Slime*)other->obj;
+        slime->health -= 0.25 * (1 + fabs(sword->angleDelta));
+    }
+    if (strcmp(other->tag, "slime ghoul") == 0) {
+        SlimeGhoul* slime = (SlimeGhoul*)other->obj;
+        slime->health -= 0.25 * (1 + fabs(sword->angleDelta));
     }
     return false;
 }
