@@ -9,10 +9,6 @@ typedef struct GameObject {
     void (*update)(void* self);
 } GameObject;
 
-GameObject* createGameObject(char* tag, void* obj,
-                             Rect (*getCollider)(GameObject*),
-                             void (*update)(void*));
-
 typedef struct GameObjectNode GameObjectNode;
 typedef struct GameObjectNode {
     GameObject* obj;
@@ -23,3 +19,7 @@ extern GameObjectNode* gameObjectHead;
 
 void runGameObjects();
 void removeGameObject(GameObject* obj);
+GameObject* createGameObject(char* tag, void* obj,
+                             Rect (*getCollider)(GameObject*),
+                             void (*update)(void*));
+i32 getActiveGameObjects();

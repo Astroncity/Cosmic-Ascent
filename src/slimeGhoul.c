@@ -2,29 +2,31 @@
 #include "gameobject.h"
 #include "globals.h"
 #include "player.h"
+#include "raylib.h"
 #include "render.h"
+#include "slimeProjectile.h"
 #include "utils.h"
 #include <math.h>
 
 static Texture2D slimeGhoulAtlas;
-static Texture2D projectile;
 static bool loaded = false;
 
 #define GHOUL_SPEED 10
 #define RENDER_PRIORITY 3
+#define GHOUL_PROJ_COOLDOWN 1
+
 static i32 frameCount;
 
 static void init() {
     if (!loaded) {
         slimeGhoulAtlas = LoadTexture("assets/images/slimeGhoul.png");
-        projectile = LoadTexture("assets/images/slimeProjectile.png");
         frameCount = slimeGhoulAtlas.width / 16;
         loaded = true;
     }
 }
 
-static void render(void* slimeP) {
-    SlimeGhoul* ghoul = (SlimeGhoul*)slimeP;
+static void render(void* ghoulP) {
+    SlimeGhoul* ghoul = (SlimeGhoul*)ghoulP;
     v2 shadowPos = {ghoul->rect.x + ghoul->rect.width / 2,
                     ghoul->rect.y + ghoul->rect.height / 2};
 
@@ -39,13 +41,13 @@ static void render(void* slimeP) {
 }
 
 static void handleCollision(SlimeGhoul* slime) {
-    if (CheckCollisionRecs(player->rect, slime->rect)) {
+    if (CheckCollisionRecs(getPlayerCollider(player), slime->rect)) {
         damagePlayer(1);
     }
 }
 
-static void update(void* slimeP) {
-    SlimeGhoul* ghoul = (SlimeGhoul*)slimeP;
+static void update(void* ghoulP) {
+    SlimeGhoul* ghoul = (SlimeGhoul*)ghoulP;
     v2 playerPos = {player->rect.x, player->rect.y};
     v2 slimePos = {ghoul->rect.x, ghoul->rect.y};
     f32 ang = getAngleToPoint(slimePos, playerPos);
@@ -55,6 +57,13 @@ static void update(void* slimeP) {
 
     ghoul->frame = fmodf(ghoul->frame + 0.10, frameCount);
     handleCollision(ghoul);
+    ghoul->projectileTimer += GetFrameTime();
+
+    if (ghoul->projectileTimer > GHOUL_PROJ_COOLDOWN) {
+        ghoul->projectileTimer = 0;
+        v2 pos = {ghoul->rect.x, ghoul->rect.y};
+        SlimeProjectileCreate(pos, ang, 50);
+    }
 }
 
 static Rect getCollider(GameObject* gameObject) {
@@ -67,6 +76,7 @@ SlimeGhoul* SlimeGhoulCreate() {
     SlimeGhoul* ghoul = malloc(sizeof(SlimeGhoul));
     ghoul->rect = (Rect){100, 100, 16, 16};
     ghoul->frame = 0;
+    ghoul->projectileTimer = 0;
 
     createGameObject("slime ghoul", ghoul, getCollider, update);
     addRender((RenderData){ghoul, render, RENDER_PRIORITY});

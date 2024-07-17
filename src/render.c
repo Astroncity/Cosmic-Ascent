@@ -74,3 +74,13 @@ void renderDebug() {
         curr = curr->next;
     }
 }
+
+i32 getActiveRenderers() {
+    i32 count = 0;
+    RenderNode* curr = renderHead;
+    while (curr != NULL) {
+        count++;
+        curr = curr->next;
+    }
+    return count;
+}

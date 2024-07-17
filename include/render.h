@@ -17,3 +17,4 @@ void addRender(RenderData data);
 void renderAll();
 void removeRender(RenderData data);
 void renderDebug();
+i32 getActiveRenderers();

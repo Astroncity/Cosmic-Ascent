@@ -3,6 +3,7 @@
 #include "expParticle.h"
 #include "gameobject.h"
 #include "globals.h"
+#include "planet.h"
 #include "render.h"
 #include "slime.h"
 #include "slimeGhoul.h"

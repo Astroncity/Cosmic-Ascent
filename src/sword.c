@@ -119,14 +119,6 @@ static bool onCollision(Sword* sword, GameObject* other) {
     if (strcmp(other->tag, "rock") == 0) {
         Rock* rock = (Rock*)other->obj;
         return rock->hit(rock);
-        // sword->underRecoil = true;
-        //  SpinData* newData = malloc(sizeof(SpinData));
-        //*newData = recoilData;
-
-        // newData->speed = sword->angleDelta * 100;
-        // newData->start = GetTime();
-        // newData->sword = sword;
-        // createTask(newData, spinTask);
     }
     return false;
 }

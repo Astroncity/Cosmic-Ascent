@@ -62,3 +62,13 @@ GameObject* createGameObject(char* tag, void* obj,
     addGameObject(gameObject);
     return gameObject;
 }
+
+i32 getActiveGameObjects() {
+    GameObjectNode* curr = gameObjectHead;
+    i32 count = 0;
+    while (curr != NULL) {
+        count++;
+        curr = curr->next;
+    }
+    return count;
+}
