@@ -4,12 +4,14 @@
 #include "gameobject.h"
 #include "globals.h"
 #include "planet.h"
+#include "raylib.h"
 #include "render.h"
 #include "slime.h"
 #include "slimeGhoul.h"
 #include "task.h"
 #include "upgradeCard.h"
 #include "utils.h"
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -17,12 +19,51 @@ Font bestFont;
 
 #define UI_SCALE 1
 
+typedef enum EnemyType {
+    ENEMY_SLIME,
+    ENEMY_SLIME_GHOUL,
+} EnemyType;
+i32 enemyTypes = 2;
+
 Texture2D UITexture;
 Texture2D botBar;
 Bar* healthBar;
 Bar* ExpBar;
+f64 lastEnemySpawn = 0;
+f32 enemiesPerSecond = 0.20;
 
-void drawUI() {
+v2 getRandEnemyPos(void) {
+    f32 angle = GetRandomValue(0, 360);
+    f32 dist = (screenWidth + screenHeight) / 4.0;
+    v2 pos;
+    pos.x = screenWidth / 2.0 + cos(angle) * dist;
+    pos.y = screenHeight / 2.0 + sin(angle) * dist;
+    printf("pos: %f, %f\n", pos.x, pos.y);
+    return pos;
+}
+
+void mapEnemyTypeToSpawnFunc(EnemyType type) {
+    v2 pos = getRandEnemyPos();
+    switch (type) {
+    case ENEMY_SLIME:
+        SlimeCreate(pos);
+        break;
+    case ENEMY_SLIME_GHOUL:
+        SlimeGhoulCreate(pos);
+        break;
+    }
+    return;
+}
+
+void spawnEnemies(void) {
+    if (GetTime() - lastEnemySpawn >= 1.0 / enemiesPerSecond) {
+        i32 enemy = GetRandomValue(0, enemyTypes - 1);
+        mapEnemyTypeToSpawnFunc(enemy);
+        lastEnemySpawn = GetTime();
+    }
+}
+
+void drawUI(void) {
     v2 pos = {screenWidth / 2.0, 16 * UI_SCALE};
     Rect src = {0, 0, UITexture.width, UITexture.height};
     Rect dest = {pos.x, pos.y, src.width * UI_SCALE, src.height * UI_SCALE};
@@ -77,9 +118,6 @@ int main(void) {
     PlanetTerrain* terrain = genPlanetTerrain(&testPlanet);
     currentTerrain = terrain;
 
-    SlimeCreate();
-    SlimeGhoulCreate();
-
     while (!WindowShouldClose()) {
 
         f32 scale = MIN((f32)GetScreenWidth() / screenWidth,
@@ -91,6 +129,11 @@ int main(void) {
         runGameObjects();
         // updateParticleSystem(testSys);
         runAllTasks();
+        spawnEnemies();
+
+        if (IsKeyPressed(KEY_F3)) {
+            printRunningTasks();
+        }
 
         BeginTextureMode(target);
 

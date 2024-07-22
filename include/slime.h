@@ -12,4 +12,4 @@ typedef struct Slime {
     GameObject* gameobject;
 } Slime;
 
-Slime* SlimeCreate();
+Slime* SlimeCreate(v2 pos);

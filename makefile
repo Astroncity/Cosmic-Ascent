@@ -1,3 +1,4 @@
+
 # Compiler and flags
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -std=c99 -ggdb -L lib/ -I include/ -lraylib -lm
@@ -12,8 +13,8 @@ BIN_DIR = bin
 OUTPUT_NAME = main
 
 # Source files and object files
-SRC_FILES = $(wildcard $(SRC_DIR)/*.c)
-OBJ_FILES = $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRC_FILES))
+SRC_FILES = $(shell find $(SRC_DIR) -name '*.c')
+OBJ_FILES = $(patsubst $(SRC_DIR)/%, $(BUILD_DIR)/%, $(SRC_FILES:.c=.o))
 DEP_FILES = $(OBJ_FILES:.o=.d)
 
 # Colors for output
@@ -41,6 +42,7 @@ $(BIN_DIR)/$(OUTPUT_NAME): $(OBJ_FILES)
 
 # Compile each source file to an object file
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(dir $@)
 	@printf "$(ACTION) Compiling $< to $@...\n"
 	$(CC) -c $< -o $@ $(CFLAGS) $(DEPFLAGS)
 
@@ -55,4 +57,3 @@ clean:
 
 # Phony targets
 .PHONY: all directories clean
-

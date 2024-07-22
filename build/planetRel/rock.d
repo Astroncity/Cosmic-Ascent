@@ -1,0 +1,11 @@
+build/planetRel/rock.o: src/planetRel/rock.c include/rock.h include/bar.h \
+ include/defs.h include/raylib.h include/gameobject.h include/render.h \
+ include/expParticle.h include/raylib.h
+include/rock.h:
+include/bar.h:
+include/defs.h:
+include/raylib.h:
+include/gameobject.h:
+include/render.h:
+include/expParticle.h:
+include/raylib.h:

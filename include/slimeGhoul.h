@@ -13,4 +13,4 @@ typedef struct SlimeGhoul {
     GameObject* gameobject;
 } SlimeGhoul;
 
-SlimeGhoul* SlimeGhoulCreate();
+SlimeGhoul* SlimeGhoulCreate(v2 pos);
