@@ -1,6 +1,7 @@
 #include "expParticle.h"
 #include "globals.h"
 #include "particleSystem.h"
+#include "raylib.h"
 #include "render.h"
 #include "slime.h"
 #include "slimeGhoul.h"
@@ -11,6 +12,7 @@
 #include <stdio.h>
 
 Font bestFont;
+Image gameIcon;
 
 #define UI_SCALE 1
 
@@ -97,6 +99,8 @@ int main(void) {
     bestFont = LoadFontEx("assets/fonts/spaceMono.ttf", 100, NULL, 0);
     UITexture = LoadTexture("assets/images/UI.png");
     botBar = LoadTexture("assets/images/barBot.png");
+    gameIcon = LoadImage("assets/images/CosmicAscentIcon.png");
+    SetWindowIcon(gameIcon);
 
     healthBar = BarCreate(163, 16, 100, true);
     ExpBar = BarCreate(275, 16, 100, true);
