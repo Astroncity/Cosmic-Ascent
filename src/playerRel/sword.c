@@ -42,8 +42,8 @@ SpinData recoilData = {.start = 0,
 
 static v2* getColliderLines(Sword* sword) {
     Rect r = sword->rect;
-    r.width = 23;
-    r.height = 5;
+    r.width = 23 * sword->len;
+    r.height = 5 * sword->len;
     r.x -= r.width / 2;
     r.y -= r.height / 2;
     v2 topLeft = {r.x, r.y};
@@ -238,7 +238,7 @@ static void render(void* swordP) {
                    clampAngle(sword->angle + 45), sword->cl);
 
     // draw collider
-    if (false) DrawSwordColliderLines(sword);
+    if (true) DrawSwordColliderLines(sword);
 }
 
 Sword* createSword(Player* owner, v2* mouse, Color cl) {

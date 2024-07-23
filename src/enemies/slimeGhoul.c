@@ -1,4 +1,5 @@
 #include "slimeGhoul.h"
+#include "expParticle.h"
 #include "gameobject.h"
 #include "globals.h"
 #include "player.h"
@@ -55,6 +56,7 @@ static void updateBar(SlimeGhoul* slime) {
 }
 
 static void destroy(SlimeGhoul* self) {
+    ExpParticleBatchCreate((v2){self->rect.x, self->rect.y}, GREEN, 10, 5);
     removeRender((RenderData){self, render, RENDER_PRIORITY});
     removeGameObject(self->gameobject);
     free(self->healthBar);
