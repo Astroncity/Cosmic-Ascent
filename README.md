@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/Astroncity/Cosmic-Ascent/blob/master/banner.png?raw=true/>
+  <img src="https://github.com/Astroncity/Cosmic-Ascent/blob/master/banner.png?raw=true alt="Cosmic Ascent">
 </p>
 
 # Cosmic Ascent
