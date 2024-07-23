@@ -25,4 +25,5 @@ package() {
 	cd "$pkgname"
 	install -Dm755 ./bin/cosmic-ascent "$pkgdir/usr/bin/cosmic-ascent"
 	install -Dm644 ./README.md "$pkgdir/usr/share/doc/cosmic-ascent/README.md"
+	install -Dm644 ./LICENSE "$pkgdir/usr/share/licenses/cosmic-ascent/LICENSE"
 }
