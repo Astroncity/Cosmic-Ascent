@@ -4,21 +4,21 @@
 
 # Cosmic Ascent
 
-Cosmic Ascent is a 2D top-down rougelike game currently in development alongside it's game engine.
+Cosmic Ascent is a 2D top-down rougelike currently in development alongside it's game engine.
 
-## Installation
-Cosmic Ascent uses make to build the project; gcc is required to compile the project. 
+## Installation and Usage
+### From the AUR
+```bash
+yay -S cosmic-ascent
+cosmic-ascent
+```
+### From Source
+Cosmic Ascent uses make for building and requires a C compiler. 
 
 ```bash
 git clone https://github.com/Astroncity/Cosmic-Ascent.git ~/cosmic_ascent
 cd ~/cosmic_ascent
-make
-```
-
-## Usage
-run the executable in bin/ to play the game.
-
-```bash
+make CC=gcc 
 ./bin/cosmic_ascent
 ```
 
