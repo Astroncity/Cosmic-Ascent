@@ -55,7 +55,7 @@ void updateParticleSystem(ParticleSystem* ps) {
 }
 
 void drawParticleSystem(ParticleSystem* ps) {
-    DrawCircleV(ps->pos, 5, RED);
+    // DrawCircleV(ps->pos, 5, RED);
     ParticleNode* curr = ps->head;
     while (curr != NULL) {
         Particle* part = curr->particle;
@@ -70,7 +70,7 @@ ParticleSystem* createParticleSystem(v2 pos, f32 rate, f32 lifeTime,
     ParticleSystem* ps = malloc(sizeof(ParticleSystem));
     ps->head = NULL;
     ps->pos = pos;
-    ps->rate = rate;
+    ps->rate = 1 / rate;
     ps->lifeTime = lifeTime;
     ps->size = size;
     ps->speed = speed;

@@ -1,10 +1,6 @@
-#include "bar.h"
-#include "defs.h"
 #include "expParticle.h"
-#include "gameobject.h"
 #include "globals.h"
-#include "planet.h"
-#include "raylib.h"
+#include "particleSystem.h"
 #include "render.h"
 #include "slime.h"
 #include "slimeGhoul.h"
@@ -13,7 +9,6 @@
 #include "utils.h"
 #include <math.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 Font bestFont;
 
@@ -118,6 +113,9 @@ int main(void) {
     PlanetTerrain* terrain = genPlanetTerrain(&testPlanet);
     currentTerrain = terrain;
 
+    ParticleSystem* testSys =
+        createParticleSystem((v2){100, 200}, 10, 5, 4, 10);
+
     while (!WindowShouldClose()) {
 
         f32 scale = MIN((f32)GetScreenWidth() / screenWidth,
@@ -127,7 +125,7 @@ int main(void) {
         player->update(player);
         ExpParticleUpdateAll();
         runGameObjects();
-        // updateParticleSystem(testSys);
+        updateParticleSystem(testSys);
         runAllTasks();
         spawnEnemies();
 
@@ -143,7 +141,7 @@ int main(void) {
         player->render(player);
         renderAll();
         ExpParticleDrawAll();
-        // drawParticleSystem(testSys);
+        drawParticleSystem(testSys);
         drawUI();
         handleLevelupUI();
 
