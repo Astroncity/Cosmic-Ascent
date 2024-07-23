@@ -1,3 +1,4 @@
+![Icon](https://github.com/Astroncity/Cosmic-Ascent/blob/master/CosmicAscentIcon.png?raw=true)
 # Cosmic Ascent
 
 Cosmic Ascent is a 2D top-down rougelike game currently in development alongside it's game engine.
@@ -6,7 +7,7 @@ Cosmic Ascent is a 2D top-down rougelike game currently in development alongside
 Cosmic Ascent uses make to build the project; gcc is required to compile the project. 
 
 ```bash
-git clone git@github.com:Astroncity/Cosmic-Ascent.git ~/cosmic_ascent
+git clone https://github.com/Astroncity/Cosmic-Ascent.git ~/cosmic_ascent
 cd ~/cosmic_ascent
 make
 ```
