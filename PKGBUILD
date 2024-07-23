@@ -1,6 +1,6 @@
-# Maintainer: Astro
+# Maintainer: Astro <astroncityStatic@gmail.com>
 pkgname='cosmic-ascent'
-pkgver=1
+pkgver=v1.0.0.r2.g70e67c4
 pkgrel=1
 pkgdesc="A 2D top-down rogue-like currently in development"
 arch=('x86_64')
