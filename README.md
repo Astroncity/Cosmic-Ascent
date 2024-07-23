@@ -1,4 +1,7 @@
-![Icon](https://github.com/Astroncity/Cosmic-Ascent/blob/master/CosmicAscentIcon.png?raw=true)
+<p align="center">
+  <img src="https://github.com/Astroncity/Cosmic-Ascent/blob/master/banner.png?raw=true/>
+</p>
+
 # Cosmic Ascent
 
 Cosmic Ascent is a 2D top-down rougelike game currently in development alongside it's game engine.
