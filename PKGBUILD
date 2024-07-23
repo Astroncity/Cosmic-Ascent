@@ -23,6 +23,6 @@ build() {
 
 package() {
 	cd "$pkgname"
-	install -Dm755 ./Cosmic-Ascent "$pkgdir/usr/bin/Cosmic-Ascent"
+	install -Dm755 ./bin/cosmic-ascent "$pkgdir/usr/bin/Cosmic-Ascent"
 	install -Dm644 ./README.md "$pkgdir/usr/share/doc/Cosmic-Ascent/README.md"
 }
