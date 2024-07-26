@@ -13,7 +13,7 @@ typedef struct Planet {
     Color* palette;
 } Planet;
 
-Planet genPlanet(i32 imgSize, bool randomizeColors);
+Planet* genPlanet(i32 imgSize, bool randomizeColors);
 void drawPlanet(Planet* planet, f32 scale);
 void drawPlanetThumbnail(Vector2 pos, Planet* planet);
 Color setColorShadow(Color c, i32 shadow);

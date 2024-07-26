@@ -1,3 +1,4 @@
+#include "button.h"
 #include "expParticle.h"
 #include "globals.h"
 #include "particleSystem.h"
@@ -29,6 +30,15 @@ Bar* ExpBar;
 f64 lastEnemySpawn = 0;
 f32 enemiesPerSecond = 0.20;
 
+Texture2D startButtonT;
+Texture2D settingsButtonT;
+Texture2D quitButtonT;
+Texture2D mainBackground;
+
+Button* startButton;
+Button* settingsButton;
+Button* quitButton;
+
 v2 getRandEnemyPos(void) {
     f32 angle = GetRandomValue(0, 360);
     f32 dist = (screenWidth + screenHeight) / 4.0;
@@ -50,6 +60,24 @@ void mapEnemyTypeToSpawnFunc(EnemyType type) {
         break;
     }
     return;
+}
+
+void enterPlanet();
+
+void quitButtonFunc() { quit = true; }
+
+void initMainMenu() {
+    startButton = ButtonCreate((v2){200, 77}, startButtonT, enterPlanet);
+    settingsButton = ButtonCreate((v2){187, 141}, settingsButtonT, NULL);
+    quitButton = ButtonCreate((v2){200, 206}, quitButtonT, quitButtonFunc);
+
+    state = MAIN_MENU;
+}
+
+void destroyMainMenu() {
+    ButtonDestroy(startButton);
+    ButtonDestroy(settingsButton);
+    ButtonDestroy(quitButton);
 }
 
 void spawnEnemies(void) {
@@ -84,6 +112,17 @@ void drawUI(void) {
     DrawText(TextFormat("%d", player->level), 294, 6, 10, WHITE);
 }
 
+void enterPlanet() {
+    // eventually planets will be preloaded and
+    // selected from a menu, for now we just generate one
+
+    currentPlanet = genPlanet(64, true);
+    currentTerrain = genPlanetTerrain(currentPlanet);
+    state = ON_PLANET;
+
+    destroyMainMenu();
+}
+
 int main(void) {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetTraceLogLevel(LOG_ERROR);
@@ -109,18 +148,25 @@ int main(void) {
 
     player = PlayerCreate(screenWidth / 2.0, screenHeight / 2.0);
     Sword* sword = createSword(player, &mouse, WHITE);
-    player->weaponData = (WeaponData){sword, sword->use};
+    player->weaponData = (WeaponData){sword, sword->use, sword->render};
 
-    Planet testPlanet = genPlanet(64, true);
-    currentPlanet = &testPlanet;
-    testPlanet.pos = (v2){screenWidth - 350, screenHeight / 2.0 - 128};
-    PlanetTerrain* terrain = genPlanetTerrain(&testPlanet);
-    currentTerrain = terrain;
+    // Planet testPlanet = genPlanet(64, true);
+    // testPlanet.pos = (v2){screenWidth - 350, screenHeight / 2.0 - 128};
+    // PlanetTerrain* terrain = genPlanetTerrain(&testPlanet);
 
     ParticleSystem* testSys =
         createParticleSystem((v2){100, 200}, 10, 5, 4, 10);
+    // state = ON_PLANET;
 
-    while (!WindowShouldClose()) {
+    // TEST:
+    startButtonT = LoadTexture("assets/images/startButton.png");
+    settingsButtonT = LoadTexture("assets/images/settingsButton.png");
+    quitButtonT = LoadTexture("assets/images/quitButton.png");
+    mainBackground = LoadTexture("assets/images/mainMenu.png");
+
+    initMainMenu();
+
+    while (!WindowShouldClose() && !quit) {
 
         f32 scale = MIN((f32)GetScreenWidth() / screenWidth,
                         (float)GetScreenHeight() / screenHeight);
@@ -131,26 +177,52 @@ int main(void) {
         runGameObjects();
         updateParticleSystem(testSys);
         runAllTasks();
-        spawnEnemies();
 
         if (IsKeyPressed(KEY_F3)) {
             printRunningTasks();
         }
 
+        switch (state) {
+        case MAIN_MENU:
+            break;
+        case IN_SPACE:
+            break;
+        case ON_PLANET:
+            spawnEnemies();
+            break;
+        case GAME_OVER:
+            break;
+        }
+
         BeginTextureMode(target);
 
         ClearBackground(BLACK);
-        DrawTextureEx(terrain->texture, (v2){}, 0, LEVEL_SCALE, WHITE);
 
-        player->render(player);
+        switch (state) {
+        case MAIN_MENU:
+            DrawTexture(mainBackground, 0, 0, WHITE);
+            break;
+        case IN_SPACE:
+            break;
+        case ON_PLANET:
+            DrawTextureEx(currentTerrain->texture, (v2){}, 0, LEVEL_SCALE,
+                          WHITE);
+
+            player->render(player);
+            ExpParticleDrawAll();
+            drawParticleSystem(testSys);
+            drawUI();
+            break;
+        case GAME_OVER:
+            break;
+        }
+
         renderAll();
-        ExpParticleDrawAll();
-        drawParticleSystem(testSys);
-        drawUI();
         handleLevelupUI();
 
-        DrawText(TextFormat("Mouse: (%f, %f)", mouse.x, mouse.y), 0, 0, 10,
-                 WHITE);
+        // DrawText(TextFormat("Mouse: (%f, %f)", mouse.x, mouse.y), 0, 0,
+        // 10,
+        //          WHITE);
 
         // draw horizontal and vertical line for allignment
         // DrawLine(0, screenHeight / 2, screenWidth, screenHeight / 2,

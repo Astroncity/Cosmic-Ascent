@@ -3,7 +3,6 @@
 #include "globals.h"
 #include "player.h"
 #include "raylib.h"
-#include "render.h"
 #include "rock.h"
 #include "slime.h"
 #include "slimeGhoul.h"
@@ -260,6 +259,5 @@ Sword* createSword(Player* owner, v2* mouse, Color cl) {
     sword->mouseControl = true;
     sword->invulnerableTimer = 0;
     sword->len = 1;
-    addRender((RenderData){sword, render, 0});
     return sword;
 }

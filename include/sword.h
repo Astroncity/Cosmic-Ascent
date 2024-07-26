@@ -16,6 +16,7 @@ typedef struct SpinData {
 typedef struct WeaponData {
     void* weapon;
     void (*use)(void*);
+    void (*render)(void*);
 } WeaponData;
 
 typedef struct Sword {

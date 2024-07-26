@@ -288,7 +288,7 @@ void colorPerlin(Color* pixels, Image* img, i32 imgSize, Color c1, Color c2,
     }
 }
 
-Planet genPlanet(i32 imgSize, bool randomizeColors) {
+Planet* genPlanet(i32 imgSize, bool randomizeColors) {
     i32 randomSeed = GetRandomValue(0, 1000);
     i32 thumbSize = 23;
 
@@ -346,8 +346,17 @@ Planet genPlanet(i32 imgSize, bool randomizeColors) {
     atmoColor.a = 255;
     palette[3] = atmoColor;
 
-    Planet planet = {tex,        atmosphere, thumb,   thumbnailAtmosphere,
-                     (v2){0, 0}, imgSize,    average, palette};
+    /*Planet planet = {tex,        atmosphere, thumb,   thumbnailAtmosphere,
+                     (v2){0, 0}, imgSize,    average, palette}; */
+    Planet* planet = malloc(sizeof(Planet));
+    planet->texture = tex;
+    planet->atmosphere = atmosphere;
+    planet->thumbnail = thumb;
+    planet->thumbnailAtmosphere = thumbnailAtmosphere;
+    planet->pos = (v2){0, 0};
+    planet->size = imgSize;
+    planet->terrainColor = average;
+    planet->palette = palette;
 
     return planet;
 }

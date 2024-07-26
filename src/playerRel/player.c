@@ -1,6 +1,7 @@
 #include "player.h"
 #include "globals.h"
 #include "raylib.h"
+#include "sword.h"
 #include "task.h"
 #include <stdio.h>
 
@@ -73,6 +74,7 @@ static void render(void* p) {
     v2 origin = {player->rect.width / 2.0, player->rect.height / 2.0};
 
     DrawTexturePro(texture, src, player->rect, origin, 0, WHITE);
+    player->weaponData.render(player->weaponData.weapon);
 }
 
 static void loadTextures() {
