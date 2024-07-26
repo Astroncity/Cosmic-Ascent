@@ -1,7 +1,7 @@
 
 # Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -std=c99 -ggdb -I include/ -lraylib -lm
+CFLAGS = -Wall -Wextra -Werror -std=c99 -ggdb -L lib/ -I include/ -lraylib -lm
 DEPFLAGS = -MMD -MP
 
 # Directories
@@ -38,13 +38,13 @@ directories:
 # Build the executable
 $(BIN_DIR)/$(OUTPUT_NAME): $(OBJ_FILES)
 	@printf "$(ACTION) Linking object files...\n"
-	$(CC) $^ -o $@ $(CFLAGS)
+	@$(CC) $^ -o $@ $(CFLAGS)
 
 # Compile each source file to an object file
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
 	@printf "$(ACTION) Compiling $< to $@...\n"
-	$(CC) -c $< -o $@ $(CFLAGS) $(DEPFLAGS)
+	@$(CC) -c $< -o $@ $(CFLAGS) $(DEPFLAGS)
 
 # Include dependency files
 -include $(DEP_FILES)

@@ -39,6 +39,8 @@ Button* startButton;
 Button* settingsButton;
 Button* quitButton;
 
+i32 enemiesSpawned = 0;
+
 v2 getRandEnemyPos(void) {
     f32 angle = GetRandomValue(0, 360);
     f32 dist = (screenWidth + screenHeight) / 4.0;
@@ -85,6 +87,7 @@ void spawnEnemies(void) {
         i32 enemy = GetRandomValue(0, enemyTypes - 1);
         mapEnemyTypeToSpawnFunc(enemy);
         lastEnemySpawn = GetTime();
+        enemiesSpawned++;
     }
 }
 
