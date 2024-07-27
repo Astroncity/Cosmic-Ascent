@@ -1,5 +1,6 @@
 #include "button.h"
 #include "expParticle.h"
+#include "fuelMeter.h"
 #include "globals.h"
 #include "particleSystem.h"
 #include "raylib.h"
@@ -128,7 +129,7 @@ void enterPlanet() {
 
 int main(void) {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-    SetTraceLogLevel(LOG_ERROR);
+    SetTraceLogLevel(LOG_WARNING);
     InitWindow(screenWidth, screenHeight, "Planet Generation Test");
     InitAudioDevice();
     SetMasterVolume(1);
@@ -166,6 +167,8 @@ int main(void) {
     settingsButtonT = LoadTexture("assets/images/settingsButton.png");
     quitButtonT = LoadTexture("assets/images/quitButton.png");
     mainBackground = LoadTexture("assets/images/mainMenu.png");
+
+    FuelMeterCreate(0, 0, 100);
 
     initMainMenu();
 

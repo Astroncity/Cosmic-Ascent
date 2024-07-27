@@ -53,18 +53,24 @@ void grantDash() {
 void UpgradeCardInit() {
     if (!loaded) {
         ICON_TEXTURES = malloc(sizeof(Texture2D) * 5);
-        ICON_TEXTURES[0] = LoadTexture("assets/images/swordLength.png");
-        ICON_TEXTURES[1] = LoadTexture("assets/images/swordDamage.png");
-        ICON_TEXTURES[3] = LoadTexture("assets/images/swordSpeed.png");
-        ICON_TEXTURES[2] = LoadTexture("assets/images/dash.png");
-        ICON_TEXTURES[4] = LoadTexture("assets/images/exp.png");
+        ICON_TEXTURES[0] =
+            LoadTexture("assets/images/upgrades/swordLength.png");
+        ICON_TEXTURES[1] =
+            LoadTexture("assets/images/upgrades/swordDamage.png");
+        ICON_TEXTURES[3] =
+            LoadTexture("assets/images/upgrades/swordSpeed.png");
+        ICON_TEXTURES[2] = LoadTexture("assets/images/upgrades/dash.png");
+        ICON_TEXTURES[4] = LoadTexture("assets/images/upgrades/exp.png");
 
         TXT_TEXTURES = malloc(sizeof(Texture2D) * 5);
-        TXT_TEXTURES[0] = LoadTexture("assets/images/swordLengthTxt.png");
-        TXT_TEXTURES[1] = LoadTexture("assets/images/swordDamageTxt.png");
-        TXT_TEXTURES[3] = LoadTexture("assets/images/swordSpeedTxt.png");
-        TXT_TEXTURES[2] = LoadTexture("assets/images/dashTxt.png");
-        TXT_TEXTURES[4] = LoadTexture("assets/images/expTxt.png");
+        TXT_TEXTURES[0] =
+            LoadTexture("assets/images/upgrades/swordLengthTxt.png");
+        TXT_TEXTURES[1] =
+            LoadTexture("assets/images/upgrades/swordDamageTxt.png");
+        TXT_TEXTURES[3] =
+            LoadTexture("assets/images/upgrades/swordSpeedTxt.png");
+        TXT_TEXTURES[2] = LoadTexture("assets/images/upgrades/dashTxt.png");
+        TXT_TEXTURES[4] = LoadTexture("assets/images/upgrades/expTxt.png");
 
         UPGRADE_FUNCS = malloc(sizeof(UpgradeFunc) * 5);
         UPGRADE_FUNCS[0] = upgradeSwordLength;
@@ -72,8 +78,8 @@ void UpgradeCardInit() {
         UPGRADE_FUNCS[2] = grantDash;
 
         alagard = LoadFont("assets/fonts/alagard.ttf");
-        cardTexture = LoadTexture("assets/images/card.png");
-        cardFrame = LoadTexture("assets/images/levelupFrame.png");
+        cardTexture = LoadTexture("assets/images/upgrades/card.png");
+        cardFrame = LoadTexture("assets/images/upgrades/levelupFrame.png");
         loaded = true;
     }
 }

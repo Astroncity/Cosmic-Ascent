@@ -79,10 +79,14 @@ static void render(void* p) {
 
 static void loadTextures() {
     if (!loadedTextures) {
-        playerTextures[0] = LoadTexture("assets/images/playerDown.png");
-        playerTextures[1] = LoadTexture("assets/images/playerUp.png");
-        playerTextures[2] = LoadTexture("assets/images/playerLeft.png");
-        playerTextures[3] = LoadTexture("assets/images/playerRight.png");
+        playerTextures[0] =
+            LoadTexture("assets/images/player/playerDown.png");
+        playerTextures[1] =
+            LoadTexture("assets/images/player/playerUp.png");
+        playerTextures[2] =
+            LoadTexture("assets/images/player/playerLeft.png");
+        playerTextures[3] =
+            LoadTexture("assets/images/player/playerRight.png");
     }
 }
 
