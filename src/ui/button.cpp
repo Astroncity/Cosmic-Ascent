@@ -39,7 +39,7 @@ static void update(TASK_PARAMS) {
 }
 
 Button* ButtonCreate(v2 pos, Texture2D texture, void (*onClick)(void)) {
-    Button* button = malloc(sizeof(Button));
+    Button* button = (Button*)malloc(sizeof(Button));
     button->texture = texture;
     button->bounds = (Rect){pos.x, pos.y, texture.width, texture.height};
     button->onClick = onClick;

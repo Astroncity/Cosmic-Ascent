@@ -3,7 +3,7 @@
 #include "globals.h"
 #include "planet.h"
 #include "raylib.h"
-#include "rock.h"
+#include "rock.hpp"
 #include <stdlib.h>
 
 const i32 imgSize = 480;
@@ -65,7 +65,7 @@ PlanetTerrain* genPlanetTerrain(Planet* planet) {
     free(dirtPixels);
     free(solidPixels);
 
-    PlanetTerrain* terrain = malloc(sizeof(PlanetTerrain));
+    PlanetTerrain* terrain = (PlanetTerrain*)malloc(sizeof(PlanetTerrain));
     terrain->texture = LoadTextureFromImage(final);
 
     Color rockC = planet->palette[GetRandomValue(0, 4)];

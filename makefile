@@ -1,7 +1,7 @@
 
 # Compiler and flags
-CC = gcc
-CFLAGS = -Wall -Wextra -Werror -std=c99 -ggdb -L lib/ -I include/ -lraylib -lm
+CC = g++
+CFLAGS = -Wall -Wextra -Werror -Wno-narrowing -ggdb -L lib/ -I include/ -lraylib -lm
 DEPFLAGS = -MMD -MP
 
 # Directories
@@ -13,8 +13,8 @@ BIN_DIR = bin
 OUTPUT_NAME = cosmic-ascent
 
 # Source files and object files
-SRC_FILES = $(shell find $(SRC_DIR) -name '*.c')
-OBJ_FILES = $(patsubst $(SRC_DIR)/%, $(BUILD_DIR)/%, $(SRC_FILES:.c=.o))
+SRC_FILES = $(shell find $(SRC_DIR) -name '*.cpp')
+OBJ_FILES = $(patsubst $(SRC_DIR)/%, $(BUILD_DIR)/%, $(SRC_FILES:.cpp=.o))
 DEP_FILES = $(OBJ_FILES:.o=.d)
 
 # Colors for output
@@ -41,7 +41,7 @@ $(BIN_DIR)/$(OUTPUT_NAME): $(OBJ_FILES)
 	@$(CC) $^ -o $@ $(CFLAGS)
 
 # Compile each source file to an object file
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
 	@printf "$(ACTION) Compiling $< to $@...\n"
 	@$(CC) -c $< -o $@ $(CFLAGS) $(DEPFLAGS)

@@ -18,7 +18,7 @@ void DrawText3D(Font font, const char* text, i32 x, i32 y, i32 size,
 
 char* strdup(const char* str) {
     size_t len = strlen(str) + 1; // +1 for null terminator
-    char* copy = malloc(len);
+    char* copy = (char*)malloc(len);
     if (copy) {
         memcpy(copy, str, len);
     }
@@ -78,7 +78,8 @@ static void flashingTextTask(TASK_PARAMS) {
 void DrawFlashingText(Font font, const char* text, v2 pos, i32 size,
                       Color color, f32 duration) {
 
-    FlashingTextData* data = malloc(sizeof(FlashingTextData));
+    FlashingTextData* data =
+        (FlashingTextData*)malloc(sizeof(FlashingTextData));
     data->start = GetTime();
     data->duration = duration;
     data->pos = pos;

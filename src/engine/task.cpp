@@ -5,14 +5,14 @@
 TaskNode* taskHead = NULL;
 
 static void insertTask(Task* task) {
-    TaskNode* new = (TaskNode*)malloc(sizeof(TaskNode));
-    new->task = task;
-    new->next = NULL;
+    TaskNode* tk = (TaskNode*)malloc(sizeof(TaskNode));
+    tk->task = task;
+    tk->next = NULL;
 
     TaskNode* curr = taskHead;
 
     if (taskHead == NULL) {
-        taskHead = new;
+        taskHead = tk;
         return;
     }
 
@@ -20,10 +20,11 @@ static void insertTask(Task* task) {
         curr = curr->next;
     }
 
-    curr->next = new;
+    curr->next = tk;
 }
 
-Task* createTask(char* name, void* taskData, void (*run)(void*, Task*)) {
+Task* createTask(const char* name, void* taskData,
+                 void (*run)(void*, Task*)) {
     Task* task = (Task*)malloc(sizeof(Task));
     task->taskData = taskData;
     task->run = run;

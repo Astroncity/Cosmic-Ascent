@@ -1,5 +1,4 @@
-#include "slime.h"
-#include "bar.h"
+#include "slime.hpp"
 #include "expParticle.h"
 #include "gameobject.h"
 #include "globals.h"
@@ -37,7 +36,7 @@ static void render(void* slimeP) {
     Rect dest = {slime->rect.x, slime->rect.y, 16, 16};
 
     DrawTexturePro(slimeAtlas, src, dest, (Vector2){0, 0}, 0, WHITE);
-    BarRender(slime->healthBar, GREEN, true);
+    slime->healthBar->render(GREEN, true);
 }
 
 static void handleCollision(Slime* slime) {
@@ -48,9 +47,8 @@ static void handleCollision(Slime* slime) {
 
 static void updateBar(Slime* slime) {
     Bar* bar = slime->healthBar;
-    bar->rect.x = slime->rect.x;
-    bar->rect.y = slime->rect.y;
     bar->value = slime->health;
+    bar->updatePos(slime->rect.x, slime->rect.y);
 }
 
 static void destroy(Slime* self) {
@@ -84,12 +82,12 @@ static Rect getCollider(GameObject* gameObject) {
 
 Slime* SlimeCreate(v2 pos) {
     SlimeInit();
-    Slime* slime = malloc(sizeof(Slime));
+    Slime* slime = (Slime*)malloc(sizeof(Slime));
     slime->rect = (Rect){pos.x, pos.y, 16, 16};
     slime->frame = 0;
     slime->maxHealth = 100;
     slime->health = slime->maxHealth;
-    slime->healthBar = BarCreate(0, 0, slime->maxHealth, false);
+    slime->healthBar = new Bar(0, 0, slime->maxHealth, false);
     slime->gameobject =
         createGameObject("slime", slime, getCollider, update);
     addRender((RenderData){slime, render, RENDER_PRIORITY});

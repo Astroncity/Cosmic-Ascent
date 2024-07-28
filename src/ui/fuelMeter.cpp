@@ -25,12 +25,12 @@ static void render(void* obj) {
     fm->currFuel = lerp(fm->currFuel, fm->fuel, 0.1f);
 
     f32 scale = fm->currFuel / fm->maxFuel;
-    Rect new = (Rect){barPos.x, barPos.y, fuelBar.width, fuelBar.height};
+    Rect n = (Rect){barPos.x, barPos.y, fuelBar.width, fuelBar.height};
     Rect src = {0, 0, fuelBarWidth * scale, fuelBarHeight};
-    new.width *= scale;
+    n.width *= scale;
 
     DrawTexture(fuelBase, fm->rect.x, fm->rect.y, WHITE);
-    DrawTexturePro(fuelBar, src, new, (v2){0, 0}, 0, WHITE);
+    DrawTexturePro(fuelBar, src, n, (v2){0, 0}, 0, WHITE);
     Texture2D light;
     if (fm->currFuel > fm->maxFuel * 0.99) {
         light = lightGreen;
@@ -59,7 +59,7 @@ static void init(void) {
 
 FuelMeter* FuelMeterCreate(f32 x, f32 y, f32 max) {
     init();
-    FuelMeter* fuelMeter = malloc(sizeof(FuelMeter));
+    FuelMeter* fuelMeter = (FuelMeter*)malloc(sizeof(FuelMeter));
 
     fuelMeter->fuel = 0;
     fuelMeter->maxFuel = max;

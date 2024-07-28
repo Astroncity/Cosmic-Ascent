@@ -3,7 +3,7 @@
 
 typedef struct GameObject GameObject;
 typedef struct GameObject {
-    char* tag;
+    const char* tag;
     void* obj;
     Rect (*getCollider)(GameObject* self);
     void (*update)(void* self);
@@ -20,7 +20,7 @@ extern GameObjectNode* gameObjectHead;
 
 void runGameObjects();
 void removeGameObject(GameObject* obj);
-GameObject* createGameObject(char* tag, void* obj,
+GameObject* createGameObject(const char* tag, void* obj,
                              Rect (*getCollider)(GameObject*),
                              void (*update)(void*));
 i32 getActiveGameObjects();

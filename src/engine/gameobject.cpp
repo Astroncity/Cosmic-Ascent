@@ -4,12 +4,12 @@
 GameObjectNode* gameObjectHead = NULL;
 
 void addGameObject(GameObject* obj) {
-    GameObjectNode* new = malloc(sizeof(GameObjectNode));
-    new->obj = obj;
-    new->next = NULL;
+    GameObjectNode* gm = (GameObjectNode*)malloc(sizeof(GameObjectNode));
+    gm->obj = obj;
+    gm->next = NULL;
 
     if (gameObjectHead == NULL) {
-        gameObjectHead = new;
+        gameObjectHead = gm;
         return;
     }
 
@@ -18,7 +18,7 @@ void addGameObject(GameObject* obj) {
         curr = curr->next;
     }
 
-    curr->next = new;
+    curr->next = gm;
 }
 
 void removeGameObject(GameObject* obj) {
@@ -59,10 +59,10 @@ void runGameObjects() {
     }
 }
 
-GameObject* createGameObject(char* tag, void* obj,
+GameObject* createGameObject(const char* tag, void* obj,
                              Rect (*getCollider)(GameObject*),
                              void (*update)(void*)) {
-    GameObject* gameObject = malloc(sizeof(GameObject));
+    GameObject* gameObject = (GameObject*)malloc(sizeof(GameObject));
     gameObject->tag = tag;
     gameObject->obj = obj;
     gameObject->getCollider = getCollider;

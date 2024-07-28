@@ -5,14 +5,14 @@
 RenderNode* renderHead = NULL;
 
 void addRender(RenderData data) {
-    RenderNode* new = malloc(sizeof(RenderNode));
-    new->data = data;
-    new->next = NULL;
+    RenderNode* rend = (RenderNode*)malloc(sizeof(RenderNode));
+    rend->data = data;
+    rend->next = NULL;
 
-    // If the list is empty or the new node should be the new head
+    // If the list is empty or the rend node should be the new head
     if (renderHead == NULL || renderHead->data.priority > data.priority) {
-        new->next = renderHead;
-        renderHead = new;
+        rend->next = renderHead;
+        renderHead = rend;
         return;
     }
 
@@ -23,9 +23,9 @@ void addRender(RenderData data) {
         curr = curr->next;
     }
 
-    // Insert the new node
-    new->next = curr->next;
-    curr->next = new;
+    // Insert the rend node
+    rend->next = curr->next;
+    curr->next = rend;
 }
 
 bool compareRenderData(RenderData a, RenderData b) {

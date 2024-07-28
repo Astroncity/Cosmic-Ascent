@@ -1,16 +1,15 @@
 #pragma once
-#include "bar.h"
+#include "bar.hpp"
 #include "defs.h"
 #include "gameobject.h"
 
-typedef struct SlimeGhoul {
+typedef struct Slime {
     f32 frame;
     Rect rect;
-    f32 projectileTimer;
     i32 maxHealth;
     i32 health;
     Bar* healthBar;
     GameObject* gameobject;
-} SlimeGhoul;
+} Slime;
 
-SlimeGhoul* SlimeGhoulCreate(v2 pos);
+Slime* SlimeCreate(v2 pos);

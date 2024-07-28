@@ -4,7 +4,6 @@
 #include "utils.h"
 #include <math.h>
 #include <stdarg.h>
-#include <stdio.h>
 
 Color grassCl = {99 * 1.25, 171 * 1.25, 63 * 1.25, 255};
 Color swampcl = {47 * 1.25, 87 * 1.25, 83 * 1.25, 255};
@@ -339,7 +338,7 @@ Planet* genPlanet(i32 imgSize, bool randomizeColors) {
     Color average = averageColors(3, c1, c2, c3);
     average = normalizeColor(average);
 
-    Color* palette = malloc(sizeof(Color) * 4);
+    Color* palette = (Color*)malloc(sizeof(Color) * 4);
     palette[0] = c1;
     palette[1] = c2;
     palette[2] = c3;
@@ -348,7 +347,7 @@ Planet* genPlanet(i32 imgSize, bool randomizeColors) {
 
     /*Planet planet = {tex,        atmosphere, thumb,   thumbnailAtmosphere,
                      (v2){0, 0}, imgSize,    average, palette}; */
-    Planet* planet = malloc(sizeof(Planet));
+    Planet* planet = (Planet*)malloc(sizeof(Planet));
     planet->texture = tex;
     planet->atmosphere = atmosphere;
     planet->thumbnail = thumb;

@@ -1,8 +1,7 @@
-#include "rock.h"
+#include "rock.hpp"
 #include "expParticle.h"
 #include "gameobject.h"
 #include "raylib.h"
-#include <stdio.h>
 
 const char* TEXTURE_PATH = "assets/images/rock.png";
 const i32 RENDER_PRIORITY = 5;
@@ -50,7 +49,7 @@ static void render(void* rockP) {
     DrawTexturePro(rock->texture, src, shadowDest, org, 0, shadowTint);
 
     DrawTexturePro(rock->texture, src, dest, org, 0, rock->cl);
-    BarRender(rock->healthBar, rock->cl, true);
+    rock->healthBar->render(rock->cl, true);
     if (false) drawCol(rock);
 }
 
@@ -96,7 +95,7 @@ Rock* createRock(f32 x, f32 y, Color cl) {
         rockTexture = LoadTextureFromImage(temp);
     }
 
-    Rock* rock = malloc(sizeof(Rock));
+    Rock* rock = (Rock*)malloc(sizeof(Rock));
     rock->texture = rockTexture;
     rock->rect = (Rect){x, y, rockTexture.width, rockTexture.height};
     rock->renderData = (RenderData){rock, render, RENDER_PRIORITY};
@@ -105,7 +104,7 @@ Rock* createRock(f32 x, f32 y, Color cl) {
     rock->health = 3;
     rock->maxHealth = 3;
     rock->invulnerableTimer = 0;
-    rock->healthBar = BarCreate(x - 8, y - 10, rock->maxHealth, false);
+    rock->healthBar = new Bar(x - 8, y - 10, rock->maxHealth, false);
     addRender(rock->renderData);
     rock->gameobject =
         createGameObject("rock", rock, getRockCollider, update);

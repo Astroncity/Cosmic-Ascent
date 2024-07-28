@@ -3,9 +3,9 @@
 #include "globals.h"
 #include "player.h"
 #include "raylib.h"
-#include "rock.h"
-#include "slime.h"
-#include "slimeGhoul.h"
+#include "rock.hpp"
+#include "slime.hpp"
+#include "slimeGhoul.hpp"
 #include "task.h"
 #include "utils.h"
 #include <math.h>
@@ -28,15 +28,15 @@ v2 swordOrg;
 SpinData spinData = {.start = 0,
                      .runTime = 1,
                      .direction = 1,
-                     .speed = 360 * 4,
                      .type = ATTACK_SPIN,
+                     .speed = 360 * 4,
                      .sword = NULL};
 
 SpinData recoilData = {.start = 0,
                        .runTime = 0.5,
                        .direction = -1,
-                       .speed = 360 * 3,
                        .type = RECOIL_SPIN,
+                       .speed = 360 * 3,
                        .sword = NULL};
 
 static v2* getColliderLines(Sword* sword) {
@@ -57,7 +57,7 @@ static v2* getColliderLines(Sword* sword) {
     botLeft = RotatePoint(botLeft, rotOrg, sword->angle);
     botRight = RotatePoint(botRight, rotOrg, sword->angle);
 
-    v2* lines = malloc(sizeof(v2) * 8);
+    v2* lines = (v2*)malloc(sizeof(v2) * 8);
     lines[0] = topLeft;
     lines[1] = topRight;
     lines[2] = topRight;
@@ -76,7 +76,7 @@ static v2* getAxisRectLines(Rect r) {
     v2 botLeft = {r.x, r.y + r.height};
     v2 botRight = {r.x + r.width, r.y + r.height};
 
-    v2* lines = malloc(sizeof(v2) * 8);
+    v2* lines = (v2*)malloc(sizeof(v2) * 8);
     lines[0] = topLeft;
     lines[1] = topRight;
     lines[2] = topRight;
@@ -218,7 +218,7 @@ static void use(void* swordP) {
     sword->angleDelta = sword->angle - sword->previousAngle;
     sword->previousAngle = sword->angle;
     if (IsMouseButtonPressed(0) && sword->mouseControl) {
-        SpinData* newData = malloc(sizeof(SpinData));
+        SpinData* newData = (SpinData*)malloc(sizeof(SpinData));
         *newData = spinData;
         newData->start = GetTime();
         newData->sword = sword;
@@ -228,7 +228,7 @@ static void use(void* swordP) {
 
 static void render(void* swordP) {
     Sword* sword = (Sword*)swordP;
-    Rect src = {0, 0, swordTex.width, swordTex.height};
+    Rect src = {0, 0, (f32)swordTex.width, (f32)swordTex.height};
 
     Rect dest = sword->rect;
     swordOrg = (v2){dest.width / 2, dest.height / 2};
@@ -241,7 +241,7 @@ static void render(void* swordP) {
 }
 
 Sword* createSword(Player* owner, v2* mouse, Color cl) {
-    Sword* sword = malloc(sizeof(Sword));
+    Sword* sword = (Sword*)malloc(sizeof(Sword));
     if (!loadedTexture) {
         swordTex = LoadTexture("assets/images/sword.png");
         swordEffect = LoadTexture("assets/images/attackEff.png");

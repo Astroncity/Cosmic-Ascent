@@ -70,8 +70,8 @@ static void dashTask(TASK_PARAMS) {
 static void render(void* p) {
     Texture2D texture = playerTextures[playerDirection];
     Player* player = (Player*)p;
-    Rect src = {0, 0, texture.width, texture.height};
-    v2 origin = {player->rect.width / 2.0, player->rect.height / 2.0};
+    Rect src = {0, 0, (f32)texture.width, (f32)texture.height};
+    v2 origin = {player->rect.width / 2, player->rect.height};
 
     DrawTexturePro(texture, src, player->rect, origin, 0, WHITE);
     player->weaponData.render(player->weaponData.weapon);
@@ -157,11 +157,11 @@ void damagePlayer(f32 dmg) {
 
 Player* PlayerCreate(f32 x, f32 y) {
     loadTextures();
-    Player* player = malloc(sizeof(Player));
+    Player* player = (Player*)malloc(sizeof(Player));
     player->speed = PLAYER_SPEED;
     i32 w = playerTextures[0].width * PLAYER_SCALE;
     i32 h = playerTextures[0].height * PLAYER_SCALE;
-    player->rect = (Rect){x, y, w, h};
+    player->rect = (Rect){x, y, (f32)w, (f32)h};
     player->render = render;
     player->update = update;
     player->maxHealth = 100;

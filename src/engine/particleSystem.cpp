@@ -1,7 +1,7 @@
 #include "particleSystem.h"
 
 static void emit(ParticleSystem* ps) {
-    Particle* p = malloc(sizeof(Particle));
+    Particle* p = (Particle*)malloc(sizeof(Particle));
     p->pos = ps->pos;
     p->vel = (v2){(f32)rand() / RAND_MAX * 2 - 1,
                   (f32)rand() / RAND_MAX * 2 - 1};
@@ -10,7 +10,7 @@ static void emit(ParticleSystem* ps) {
     p->size = ps->size;
     p->color = (Color){(u8)(rand() % 255), (u8)(rand() % 255),
                        (u8)(rand() % 255), 255};
-    ParticleNode* node = malloc(sizeof(ParticleNode));
+    ParticleNode* node = (ParticleNode*)malloc(sizeof(ParticleNode));
     node->particle = p;
     node->next = ps->head;
     ps->head = node;
@@ -67,7 +67,7 @@ void drawParticleSystem(ParticleSystem* ps) {
 
 ParticleSystem* createParticleSystem(v2 pos, f32 rate, f32 lifeTime,
                                      f32 size, f32 speed) {
-    ParticleSystem* ps = malloc(sizeof(ParticleSystem));
+    ParticleSystem* ps = (ParticleSystem*)malloc(sizeof(ParticleSystem));
     ps->head = NULL;
     ps->pos = pos;
     ps->rate = 1 / rate;

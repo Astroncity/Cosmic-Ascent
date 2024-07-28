@@ -52,7 +52,7 @@ void grantDash() {
 
 void UpgradeCardInit() {
     if (!loaded) {
-        ICON_TEXTURES = malloc(sizeof(Texture2D) * 5);
+        ICON_TEXTURES = (Texture2D*)malloc(sizeof(Texture2D) * 5);
         ICON_TEXTURES[0] =
             LoadTexture("assets/images/upgrades/swordLength.png");
         ICON_TEXTURES[1] =
@@ -62,7 +62,7 @@ void UpgradeCardInit() {
         ICON_TEXTURES[2] = LoadTexture("assets/images/upgrades/dash.png");
         ICON_TEXTURES[4] = LoadTexture("assets/images/upgrades/exp.png");
 
-        TXT_TEXTURES = malloc(sizeof(Texture2D) * 5);
+        TXT_TEXTURES = (Texture2D*)malloc(sizeof(Texture2D) * 5);
         TXT_TEXTURES[0] =
             LoadTexture("assets/images/upgrades/swordLengthTxt.png");
         TXT_TEXTURES[1] =
@@ -72,7 +72,7 @@ void UpgradeCardInit() {
         TXT_TEXTURES[2] = LoadTexture("assets/images/upgrades/dashTxt.png");
         TXT_TEXTURES[4] = LoadTexture("assets/images/upgrades/expTxt.png");
 
-        UPGRADE_FUNCS = malloc(sizeof(UpgradeFunc) * 5);
+        UPGRADE_FUNCS = (UpgradeFunc*)malloc(sizeof(UpgradeFunc) * 5);
         UPGRADE_FUNCS[0] = upgradeSwordLength;
         UPGRADE_FUNCS[1] = upgradeSwordDamage;
         UPGRADE_FUNCS[2] = grantDash;
@@ -88,9 +88,9 @@ void UpgradeFrameDraw() { DrawTextureV(cardFrame, (v2){99, 49}, WHITE); }
 
 UpgradeCard* UpgradeCardCreate() {
     UpgradeCardInit();
-    UpgradeCard* card = malloc(sizeof(UpgradeCard));
+    UpgradeCard* card = (UpgradeCard*)malloc(sizeof(UpgradeCard));
     i32 type = GetRandomValue(0, 2);
-    card->type = type;
+    card->type = (UpgradeType)type;
     card->pos = initCardPos;
     card->hovering = false;
     initCardPos.x += cardOffset;
@@ -137,7 +137,7 @@ static void initUI() {
         active = true;
     }
     initCardPos.x = 111;
-    activeCards = malloc(sizeof(UpgradeCard) * 3);
+    activeCards = (UpgradeCard**)malloc(sizeof(UpgradeCard) * 3);
     for (int i = 0; i < 3; i++) {
         activeCards[i] = UpgradeCardCreate();
     }

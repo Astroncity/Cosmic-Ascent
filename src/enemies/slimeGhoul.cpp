@@ -1,4 +1,4 @@
-#include "slimeGhoul.h"
+#include "slimeGhoul.hpp"
 #include "expParticle.h"
 #include "gameobject.h"
 #include "globals.h"
@@ -39,7 +39,7 @@ static void render(void* ghoulP) {
     Rect dest = {ghoul->rect.x, ghoul->rect.y, 16, 16};
 
     DrawTexturePro(slimeGhoulAtlas, src, dest, (Vector2){0, 0}, 0, WHITE);
-    BarRender(ghoul->healthBar, GREEN, true);
+    ghoul->healthBar->render(GREEN, true);
 }
 
 static void handleCollision(SlimeGhoul* slime) {
@@ -50,9 +50,8 @@ static void handleCollision(SlimeGhoul* slime) {
 
 static void updateBar(SlimeGhoul* slime) {
     Bar* bar = slime->healthBar;
-    bar->rect.x = slime->rect.x;
-    bar->rect.y = slime->rect.y;
     bar->value = slime->health;
+    bar->updatePos(slime->rect.x, slime->rect.y);
 }
 
 static void destroy(SlimeGhoul* self) {
@@ -95,13 +94,13 @@ static Rect getCollider(GameObject* gameObject) {
 SlimeGhoul* SlimeGhoulCreate(v2 pos) {
     init();
 
-    SlimeGhoul* ghoul = malloc(sizeof(SlimeGhoul));
+    SlimeGhoul* ghoul = (SlimeGhoul*)malloc(sizeof(SlimeGhoul));
     ghoul->rect = (Rect){pos.x, pos.y, 16, 16};
     ghoul->frame = 0;
     ghoul->projectileTimer = 0;
     ghoul->maxHealth = 50;
     ghoul->health = ghoul->maxHealth;
-    ghoul->healthBar = BarCreate(0, 0, ghoul->maxHealth, false);
+    ghoul->healthBar = new Bar(0, 0, ghoul->maxHealth, false);
 
     ghoul->gameobject =
         createGameObject("slime ghoul", ghoul, getCollider, update);

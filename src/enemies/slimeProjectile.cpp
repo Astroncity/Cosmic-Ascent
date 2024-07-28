@@ -47,16 +47,17 @@ static void update(void* projP) {
 static void render(void* projP) {
     update(projP);
     SlimeProjectile* proj = (SlimeProjectile*)projP;
-    DrawTexturePro(
-        slimeProjectile,
-        (Rect){0, 0, slimeProjectile.width, slimeProjectile.height},
-        (Rect){proj->pos.x, proj->pos.y, 8, 8}, (Vector2){},
-        proj->direction, WHITE);
+    DrawTexturePro(slimeProjectile,
+                   (Rect){0, 0, (f32)slimeProjectile.width,
+                          (f32)slimeProjectile.height},
+                   (Rect){proj->pos.x, proj->pos.y, 8, 8}, (Vector2){},
+                   proj->direction, WHITE);
 }
 
 SlimeProjectile* SlimeProjectileCreate(v2 start, f32 dir, f32 speed) {
     init();
-    SlimeProjectile* proj = malloc(sizeof(SlimeProjectile));
+    SlimeProjectile* proj =
+        (SlimeProjectile*)malloc(sizeof(SlimeProjectile));
     proj->pos = start;
     proj->direction = dir;
     proj->speed = speed;

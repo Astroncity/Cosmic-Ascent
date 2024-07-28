@@ -5,8 +5,8 @@
 #include "particleSystem.h"
 #include "raylib.h"
 #include "render.h"
-#include "slime.h"
-#include "slimeGhoul.h"
+#include "slime.hpp"
+#include "slimeGhoul.hpp"
 #include "task.h"
 #include "upgradeCard.h"
 #include "utils.h"
@@ -86,7 +86,7 @@ void destroyMainMenu() {
 void spawnEnemies(void) {
     if (GetTime() - lastEnemySpawn >= 1.0 / enemiesPerSecond) {
         i32 enemy = GetRandomValue(0, enemyTypes - 1);
-        mapEnemyTypeToSpawnFunc(enemy);
+        mapEnemyTypeToSpawnFunc((EnemyType)enemy);
         lastEnemySpawn = GetTime();
         enemiesSpawned++;
     }
@@ -103,8 +103,8 @@ void drawUI(void) {
     ExpBar->value = player->exp;
     ExpBar->maxValue = player->expThreshold;
 
-    BarRender(healthBar, (Color){255, 105, 97, 255}, false);
-    BarRender(ExpBar, (Color){167, 199, 231, 255}, false);
+    healthBar->render(Color{255, 105, 97, 255}, false);
+    ExpBar->render(Color{167, 199, 231, 255}, false);
 
     v2 thumbPos = pos; // thumbnail is 24x24
     thumbPos.x -= 12 * UI_SCALE;
@@ -145,8 +145,8 @@ int main(void) {
     gameIcon = LoadImage("assets/images/CosmicAscentIcon.png");
     SetWindowIcon(gameIcon);
 
-    healthBar = BarCreate(163, 16, 100, true);
-    ExpBar = BarCreate(275, 16, 100, true);
+    healthBar = new Bar(163, 16, 100, true);
+    ExpBar = new Bar(275, 16, 100, true);
 
     // const u16 imgSize = 64;
 

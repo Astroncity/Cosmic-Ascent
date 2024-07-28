@@ -1,5 +1,5 @@
 #pragma once
-#include "bar.h"
+#include "bar.hpp"
 #include "defs.h"
 #include "gameobject.h"
 #include "raylib.h"
