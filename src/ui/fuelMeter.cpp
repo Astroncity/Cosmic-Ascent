@@ -1,4 +1,4 @@
-#include "fuelMeter.h"
+#include "fuelMeter.hpp"
 #include "raylib.h"
 #include "render.h"
 #include "utils.h"
@@ -57,14 +57,12 @@ static void init(void) {
     }
 }
 
-FuelMeter* FuelMeterCreate(f32 x, f32 y, f32 max) {
+FuelMeter::FuelMeter(f32 x, f32 y, f32 max) {
     init();
-    FuelMeter* fuelMeter = (FuelMeter*)malloc(sizeof(FuelMeter));
 
-    fuelMeter->fuel = 0;
-    fuelMeter->maxFuel = max;
-    fuelMeter->rect = (Rect){x, y, 100, 20};
+    fuel = 0;
+    maxFuel = max;
+    rect = (Rect){x, y, 100, 20};
 
-    addRender((RenderData){fuelMeter, render, RENDER_PRIORITY});
-    return fuelMeter;
+    addRender((RenderData){this, render, RENDER_PRIORITY});
 }

@@ -1,11 +1,10 @@
 #include "slimeGhoul.hpp"
-#include "expParticle.h"
-#include "gameobject.h"
+#include "expParticle.hpp"
 #include "globals.h"
 #include "player.h"
 #include "raylib.h"
 #include "render.h"
-#include "slimeProjectile.h"
+#include "slimeProjectile.hpp"
 #include "utils.h"
 #include <math.h>
 
@@ -42,68 +41,54 @@ static void render(void* ghoulP) {
     ghoul->healthBar->render(GREEN, true);
 }
 
-static void handleCollision(SlimeGhoul* slime) {
-    if (CheckCollisionRecs(getPlayerCollider(player), slime->rect)) {
+void SlimeGhoul::handleCollision() {
+    if (CheckCollisionRecs(getPlayerCollider(player), rect)) {
         damagePlayer(1);
     }
 }
 
-static void updateBar(SlimeGhoul* slime) {
-    Bar* bar = slime->healthBar;
-    bar->value = slime->health;
-    bar->updatePos(slime->rect.x, slime->rect.y);
+void SlimeGhoul::destroy() {
+    ExpParticle::batchCreate((v2){rect.x, rect.y}, GREEN, 10, 5);
+    removeRender((RenderData){(void*)this, render, RENDER_PRIORITY});
+    delete healthBar;
+    markedForDeletion = true;
 }
 
-static void destroy(SlimeGhoul* self) {
-    ExpParticleBatchCreate((v2){self->rect.x, self->rect.y}, GREEN, 10, 5);
-    removeRender((RenderData){self, render, RENDER_PRIORITY});
-    removeGameObject(self->gameobject);
-    free(self->healthBar);
-    free(self);
-}
-
-static void update(void* ghoulP) {
-    SlimeGhoul* ghoul = (SlimeGhoul*)ghoulP;
+void SlimeGhoul::update() {
     v2 playerPos = {player->rect.x, player->rect.y};
-    v2 slimePos = {ghoul->rect.x, ghoul->rect.y};
+    v2 slimePos = {rect.x, rect.y};
     f32 ang = getAngleToPoint(slimePos, playerPos);
 
-    ghoul->rect.x += cos(ang * DEG2RAD) * GHOUL_SPEED * GetFrameTime();
-    ghoul->rect.y += sin(ang * DEG2RAD) * GHOUL_SPEED * GetFrameTime();
+    rect.x += cos(ang * DEG2RAD) * GHOUL_SPEED * GetFrameTime();
+    rect.y += sin(ang * DEG2RAD) * GHOUL_SPEED * GetFrameTime();
 
-    ghoul->frame = fmodf(ghoul->frame + 0.10, frameCount);
-    updateBar(ghoul);
-    handleCollision(ghoul);
-    ghoul->projectileTimer += GetFrameTime();
+    frame = fmodf(frame + 0.10, frameCount);
+    healthBar->value = health;
+    healthBar->updatePos(rect.x, rect.y);
+    handleCollision();
+    projectileTimer += GetFrameTime();
 
-    if (ghoul->health <= 0) {
-        destroy(ghoul);
+    if (health <= 0) {
+        destroy();
     }
 
-    if (ghoul->projectileTimer > GHOUL_PROJ_COOLDOWN) {
-        ghoul->projectileTimer = 0;
-        v2 pos = {ghoul->rect.x, ghoul->rect.y};
+    if (projectileTimer > GHOUL_PROJ_COOLDOWN) {
+        projectileTimer = 0;
+        v2 pos = {rect.x, rect.y};
         SlimeProjectileCreate(pos, ang, 50);
     }
 }
 
-static Rect getCollider(GameObject* gameObject) {
-    return ((SlimeGhoul*)gameObject->obj)->rect;
-}
+Rect SlimeGhoul::getCollider() { return rect; }
 
-SlimeGhoul* SlimeGhoulCreate(v2 pos) {
+SlimeGhoul::SlimeGhoul(v2 pos) : GameObject("slimeGhoul") {
     init();
+    rect = (Rect){pos.x, pos.y, 16, 16};
+    frame = 0;
+    projectileTimer = 0;
+    maxHealth = 50;
+    health = maxHealth;
+    healthBar = new Bar(0, 0, maxHealth, false);
 
-    SlimeGhoul* ghoul = (SlimeGhoul*)malloc(sizeof(SlimeGhoul));
-    ghoul->rect = (Rect){pos.x, pos.y, 16, 16};
-    ghoul->frame = 0;
-    ghoul->projectileTimer = 0;
-    ghoul->maxHealth = 50;
-    ghoul->health = ghoul->maxHealth;
-    ghoul->healthBar = new Bar(0, 0, ghoul->maxHealth, false);
-
-    ghoul->gameobject =
-        createGameObject("slime ghoul", ghoul, getCollider, update);
-    addRender((RenderData){ghoul, render, RENDER_PRIORITY});
-    return ghoul;
+    addRender((RenderData){this, render, RENDER_PRIORITY});
 }

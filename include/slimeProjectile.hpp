@@ -1,6 +1,5 @@
 #pragma once
 #include "defs.h"
-#include "gameobject.h"
 #include "render.h"
 
 typedef struct SlimeProjectile {

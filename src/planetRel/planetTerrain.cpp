@@ -23,7 +23,7 @@ static void genObj(Color planetColor) {
         i32 x = GetRandomValue(50, screenWidth - 50);
         i32 y = GetRandomValue(50, screenHeight - 50);
 
-        createRock(x, y, planetColor);
+        new Rock(x, y, planetColor);
     }
 }
 

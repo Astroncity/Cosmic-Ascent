@@ -1,4 +1,4 @@
-#include "button.h"
+#include "button.hpp"
 #include "globals.h"
 #include "render.h"
 #include "task.h"
@@ -38,15 +38,13 @@ static void update(TASK_PARAMS) {
     }
 }
 
-Button* ButtonCreate(v2 pos, Texture2D texture, void (*onClick)(void)) {
-    Button* button = (Button*)malloc(sizeof(Button));
-    button->texture = texture;
-    button->bounds = (Rect){pos.x, pos.y, texture.width, texture.height};
-    button->onClick = onClick;
-    button->destroyed = false;
-    button->hovered = false;
-    addRender((RenderData){button, render, RENDER_PRIORITY});
-    createTask("button update", button, update);
-    return button;
+Button::Button(v2 pos, Texture2D texture, void (*onClick)(void)) {
+    this->texture = texture;
+    this->bounds = (Rect){pos.x, pos.y, texture.width, texture.height};
+    this->onClick = onClick;
+    this->destroyed = false;
+    this->hovered = false;
+    addRender((RenderData){this, render, RENDER_PRIORITY});
+    createTask("button update", this, update);
 }
-void ButtonDestroy(Button* button) { button->destroyed = true; }
+void Button::destroy() { destroyed = true; }

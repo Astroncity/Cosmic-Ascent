@@ -1,83 +1,24 @@
-#include "gameobject.h"
+#include "gameobject.hpp"
 #include <stdlib.h>
 
-GameObjectNode* gameObjectHead = NULL;
+std::list<GameObject*> GameObject::gameObjects;
 
-void addGameObject(GameObject* obj) {
-    GameObjectNode* gm = (GameObjectNode*)malloc(sizeof(GameObjectNode));
-    gm->obj = obj;
-    gm->next = NULL;
+void GameObject::runAll() {
+    for (auto it = gameObjects.begin(); it != gameObjects.end(); it++) {
+        (*it)->update();
 
-    if (gameObjectHead == NULL) {
-        gameObjectHead = gm;
-        return;
-    }
-
-    GameObjectNode* curr = gameObjectHead;
-    while (curr->next != NULL) {
-        curr = curr->next;
-    }
-
-    curr->next = gm;
-}
-
-void removeGameObject(GameObject* obj) {
-    GameObjectNode* curr = gameObjectHead;
-
-    while (curr != NULL) {
-        if (curr->obj == obj) {
-            obj->markedForDeletion = true;
-            return;
-        }
-        curr = curr->next;
-    }
-}
-
-void runGameObjects() {
-    GameObjectNode* curr = gameObjectHead;
-    GameObjectNode* prev = NULL;
-
-    while (curr != NULL) {
-        if (curr->obj->markedForDeletion) {
-            GameObjectNode* temp = curr;
-
-            if (prev == NULL) {
-                // head node is marked for deletion
-                gameObjectHead = curr->next;
-            } else {
-                prev->next = curr->next;
-            }
-
-            curr = curr->next;
-            free(temp->obj);
-            free(temp);
-        } else {
-            curr->obj->update(curr->obj->obj);
-            prev = curr;
-            curr = curr->next;
+        if ((*it)->markedForDeletion) {
+            it = gameObjects.erase(it);
         }
     }
 }
 
-GameObject* createGameObject(const char* tag, void* obj,
-                             Rect (*getCollider)(GameObject*),
-                             void (*update)(void*)) {
-    GameObject* gameObject = (GameObject*)malloc(sizeof(GameObject));
-    gameObject->tag = tag;
-    gameObject->obj = obj;
-    gameObject->getCollider = getCollider;
-    gameObject->update = update;
-    gameObject->markedForDeletion = false;
-    addGameObject(gameObject);
-    return gameObject;
-}
-
-i32 getActiveGameObjects() {
-    GameObjectNode* curr = gameObjectHead;
+i32 GameObject::getActiveGameObjects() {
     i32 count = 0;
-    while (curr != NULL) {
+
+    for (auto it = gameObjects.begin(); it != gameObjects.end(); it++) {
         count++;
-        curr = curr->next;
     }
+
     return count;
 }

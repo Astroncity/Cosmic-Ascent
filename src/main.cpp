@@ -1,6 +1,6 @@
-#include "button.h"
-#include "expParticle.h"
-#include "fuelMeter.h"
+#include "button.hpp"
+#include "expParticle.hpp"
+#include "fuelMeter.hpp"
 #include "globals.h"
 #include "particleSystem.h"
 #include "raylib.h"
@@ -56,10 +56,10 @@ void mapEnemyTypeToSpawnFunc(EnemyType type) {
     v2 pos = getRandEnemyPos();
     switch (type) {
     case ENEMY_SLIME:
-        SlimeCreate(pos);
+        new Slime(pos);
         break;
     case ENEMY_SLIME_GHOUL:
-        SlimeGhoulCreate(pos);
+        new SlimeGhoul(pos);
         break;
     }
     return;
@@ -70,17 +70,17 @@ void enterPlanet();
 void quitButtonFunc() { quit = true; }
 
 void initMainMenu() {
-    startButton = ButtonCreate((v2){200, 77}, startButtonT, enterPlanet);
-    settingsButton = ButtonCreate((v2){187, 141}, settingsButtonT, NULL);
-    quitButton = ButtonCreate((v2){200, 206}, quitButtonT, quitButtonFunc);
+    startButton = new Button(v2{200, 77}, startButtonT, enterPlanet);
+    settingsButton = new Button(v2{187, 141}, settingsButtonT, NULL);
+    quitButton = new Button(v2{200, 206}, quitButtonT, quitButtonFunc);
 
     state = MAIN_MENU;
 }
 
 void destroyMainMenu() {
-    ButtonDestroy(startButton);
-    ButtonDestroy(settingsButton);
-    ButtonDestroy(quitButton);
+    startButton->destroy();
+    settingsButton->destroy();
+    quitButton->destroy();
 }
 
 void spawnEnemies(void) {
@@ -168,7 +168,7 @@ int main(void) {
     quitButtonT = LoadTexture("assets/images/quitButton.png");
     mainBackground = LoadTexture("assets/images/mainMenu.png");
 
-    FuelMeterCreate(0, 0, 100);
+    new FuelMeter(0, 0, 100);
 
     initMainMenu();
 
@@ -179,8 +179,8 @@ int main(void) {
 
         mouse = getScreenMousePos(&mouse, scale, screenWidth, screenHeight);
         player->update(player);
-        ExpParticleUpdateAll();
-        runGameObjects();
+        ExpParticle::updateAll();
+        GameObject::runAll();
         updateParticleSystem(testSys);
         runAllTasks();
 
@@ -215,7 +215,7 @@ int main(void) {
                           WHITE);
 
             player->render(player);
-            ExpParticleDrawAll();
+            ExpParticle::drawAll();
             drawParticleSystem(testSys);
             drawUI();
             break;

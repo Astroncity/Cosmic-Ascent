@@ -1,5 +1,5 @@
-#include "sword.h"
-#include "gameobject.h"
+#include "sword.hpp"
+#include "gameobject.hpp"
 #include "globals.h"
 #include "player.h"
 #include "raylib.h"
@@ -118,61 +118,41 @@ static void spinTask(TASK_PARAMS) {
 static bool onCollision(Sword* sword, GameObject* other) {
     sword->invulnerableTimer = 0.25;
     if (strcmp(other->tag, "rock") == 0) {
-        Rock* rock = (Rock*)other->obj;
-        return rock->hit(rock);
+        Rock* rock = (Rock*)other;
+        return rock->hit();
     }
     if (strcmp(other->tag, "slime") == 0) {
-        Slime* slime = (Slime*)other->obj;
+        Slime* slime = (Slime*)other;
         slime->health -= 0.25 * (1 + fabs(sword->angleDelta));
     }
-    if (strcmp(other->tag, "slime ghoul") == 0) {
-        SlimeGhoul* slime = (SlimeGhoul*)other->obj;
-        slime->health -= 0.25 * (1 + fabs(sword->angleDelta));
+    if (strcmp(other->tag, "slimeGhoul") == 0) {
+        SlimeGhoul* gh = (SlimeGhoul*)other;
+        gh->health -= 0.25 * (1 + fabs(sword->angleDelta));
     }
     return false;
 }
 
-static bool handleCollision(Sword* sword) {
+static void handleCollision(Sword* sword) {
     // assume other collider is axis aligned
     // if (sword->invulnerableTimer > 0) return false;
-    if (sword->angleDelta < 1) return false;
+    if (sword->angleDelta < 1) return;
     v2* swordLines = getColliderLines(sword);
-    bool hit = false;
-    bool rmObj = false;
-    i32 iterations = 0;
 
-    GameObjectNode* curr = gameObjectHead;
-
-    while (curr != NULL) {
-        v2* otherLines =
-            getAxisRectLines(curr->obj->getCollider(curr->obj));
+    for (auto& gameObject : GameObject::gameObjects) {
+        v2* otherLines = getAxisRectLines(gameObject->getCollider());
         for (int i = 0; i < 8; i += 2) {
             for (int j = 0; j < 8; j += 2) {
                 if (lineLineIntersection(swordLines[i], swordLines[i + 1],
-                                         otherLines[i],
-                                         otherLines[i + 1])) {
-                    rmObj = onCollision(sword, curr->obj);
-                    hit = true;
-                    goto main_loop;
+                                         otherLines[j],
+                                         otherLines[j + 1])) {
+                    onCollision(sword, gameObject);
+                    goto next;
                 }
             }
         }
-    main_loop:
-        if (rmObj) {
-            curr = gameObjectHead;
-            for (i32 i = 0; i < iterations; i++) {
-                curr = curr->next;
-            }
-        } else {
-            curr = curr->next;
-        }
+    next:
         free(otherLines);
-        iterations++;
     }
-
-    // cleanup:
-    free(swordLines);
-    return hit;
 }
 
 static void DrawSwordColliderLines(Sword* sword) {
@@ -208,11 +188,7 @@ static void use(void* swordP) {
                      (1 + sword->len / 5);
     sword->rect.y += sin(DEG2RAD * sword->angle) * distanceFromPlr *
                      (1 + sword->len / 5);
-    if (handleCollision(sword)) {
-        sword->rect.x = sword->prevPos.x;
-        sword->rect.y = sword->prevPos.y;
-        sword->angle = sword->previousAngle;
-    }
+    handleCollision(sword);
 
     sword->prevPos = (v2){sword->rect.x, sword->rect.y};
     sword->angleDelta = sword->angle - sword->previousAngle;

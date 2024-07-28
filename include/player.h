@@ -1,6 +1,6 @@
 #pragma once
 #include "defs.h"
-#include "sword.h"
+#include "sword.hpp"
 
 typedef struct Player {
     Rect rect;

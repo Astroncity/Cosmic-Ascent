@@ -1,7 +1,7 @@
 #include "player.h"
 #include "globals.h"
 #include "raylib.h"
-#include "sword.h"
+#include "sword.hpp"
 #include "task.h"
 #include <stdio.h>
 

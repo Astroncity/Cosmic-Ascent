@@ -1,11 +1,10 @@
 #pragma once
 #include "bar.hpp"
 #include "defs.h"
-#include "gameobject.h"
+#include "gameobject.hpp"
 #include "raylib.h"
-#include "render.h"
 
-typedef struct Rock Rock;
+/*typedef struct Rock Rock;
 typedef struct Rock {
     Texture2D texture;
     Rect rect;
@@ -19,4 +18,22 @@ typedef struct Rock {
     bool (*hit)(Rock* self);
 } Rock;
 
-Rock* createRock(f32 x, f32 y, Color cl);
+Rock* createRock(f32 x, f32 y, Color cl);*/
+
+class Rock : public GameObject {
+  public:
+    Texture2D texture;
+    Rect rect;
+    Color cl;
+    Bar* healthBar;
+    i32 health;
+    i32 maxHealth;
+    f32 invulnerableTimer;
+    bool hit();
+
+    Rock(f32 x, f32 y, Color cl);
+
+    void update() override;
+    void destroy() override;
+    Rect getCollider() override;
+};

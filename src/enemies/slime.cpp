@@ -1,6 +1,5 @@
 #include "slime.hpp"
-#include "expParticle.h"
-#include "gameobject.h"
+#include "expParticle.hpp"
 #include "globals.h"
 #include "player.h"
 #include "render.h"
@@ -39,57 +38,45 @@ static void render(void* slimeP) {
     slime->healthBar->render(GREEN, true);
 }
 
-static void handleCollision(Slime* slime) {
-    if (CheckCollisionRecs(player->rect, slime->rect)) {
+void Slime::handleCollision() {
+    if (CheckCollisionRecs(player->rect, rect)) {
         damagePlayer(1);
     }
 }
 
-static void updateBar(Slime* slime) {
-    Bar* bar = slime->healthBar;
-    bar->value = slime->health;
-    bar->updatePos(slime->rect.x, slime->rect.y);
+void Slime::destroy() {
+    ExpParticle::batchCreate((v2){rect.x, rect.y}, GREEN, 10, 5);
+    removeRender((RenderData){(void*)this, render, RENDER_PRIORITY});
+    delete healthBar;
+    markedForDeletion = true;
 }
 
-static void destroy(Slime* self) {
-    ExpParticleBatchCreate((v2){self->rect.x, self->rect.y}, GREEN, 10, 5);
-    removeRender((RenderData){self, render, RENDER_PRIORITY});
-    removeGameObject(self->gameobject);
-    free(self->healthBar);
-    free(self);
-}
-
-static void update(void* slimeP) {
-    Slime* slime = (Slime*)slimeP;
+void Slime::update() {
     v2 playerPos = {player->rect.x, player->rect.y};
-    v2 slimePos = {slime->rect.x, slime->rect.y};
+    v2 slimePos = {rect.x, rect.y};
     f32 ang = getAngleToPoint(slimePos, playerPos);
-    slime->rect.x += cos(ang * DEG2RAD) * SLIME_SPEED * GetFrameTime();
-    slime->rect.y += sin(ang * DEG2RAD) * SLIME_SPEED * GetFrameTime();
-    slime->frame = fmodf(slime->frame + 0.25, frameCount);
+    rect.x += cos(ang * DEG2RAD) * SLIME_SPEED * GetFrameTime();
+    rect.y += sin(ang * DEG2RAD) * SLIME_SPEED * GetFrameTime();
+    frame = fmodf(frame + 0.25, frameCount);
 
-    updateBar(slime);
-    handleCollision(slime);
+    healthBar->value = health;
+    healthBar->updatePos(rect.x, rect.y);
+    handleCollision();
 
-    if (slime->health <= 0) {
-        destroy(slime);
+    if (health <= 0) {
+        destroy();
     }
 }
 
-static Rect getCollider(GameObject* gameObject) {
-    return ((Slime*)gameObject->obj)->rect;
-}
+Rect Slime::getCollider() { return rect; }
 
-Slime* SlimeCreate(v2 pos) {
+Slime::Slime(v2 pos) : GameObject("slime") {
     SlimeInit();
-    Slime* slime = (Slime*)malloc(sizeof(Slime));
-    slime->rect = (Rect){pos.x, pos.y, 16, 16};
-    slime->frame = 0;
-    slime->maxHealth = 100;
-    slime->health = slime->maxHealth;
-    slime->healthBar = new Bar(0, 0, slime->maxHealth, false);
-    slime->gameobject =
-        createGameObject("slime", slime, getCollider, update);
-    addRender((RenderData){slime, render, RENDER_PRIORITY});
-    return slime;
+    rect = (Rect){pos.x, pos.y, 16, 16};
+    frame = 0;
+    maxHealth = 100;
+    health = maxHealth;
+    healthBar = new Bar(0, 0, maxHealth, false);
+    addRender((RenderData){this, render, RENDER_PRIORITY});
+    return;
 }

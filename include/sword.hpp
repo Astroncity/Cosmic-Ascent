@@ -1,6 +1,5 @@
 #pragma once
 #include "defs.h"
-#include "raylib.h"
 
 typedef struct Player Player;
 typedef struct Sword Sword;

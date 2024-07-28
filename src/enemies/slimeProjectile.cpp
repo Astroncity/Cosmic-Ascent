@@ -1,5 +1,4 @@
-#include "slimeProjectile.h"
-#include "gameobject.h"
+#include "slimeProjectile.hpp"
 #include "globals.h"
 #include "player.h"
 #include "raylib.h"

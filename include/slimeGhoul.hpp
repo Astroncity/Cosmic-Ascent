@@ -1,9 +1,9 @@
 #pragma once
 #include "bar.hpp"
 #include "defs.h"
-#include "gameobject.h"
+#include "gameobject.hpp"
 
-typedef struct SlimeGhoul {
+/*typedef struct SlimeGhoul {
     f32 frame;
     Rect rect;
     f32 projectileTimer;
@@ -13,4 +13,23 @@ typedef struct SlimeGhoul {
     GameObject* gameobject;
 } SlimeGhoul;
 
-SlimeGhoul* SlimeGhoulCreate(v2 pos);
+SlimeGhoul* SlimeGhoulCreate(v2 pos);*/
+
+class SlimeGhoul : public GameObject {
+  public:
+    f32 frame;
+    Rect rect;
+    f32 projectileTimer;
+    i32 maxHealth;
+    i32 health;
+    Bar* healthBar;
+
+    SlimeGhoul(v2 pos);
+
+    Rect getCollider() override;
+    void update() override;
+    void destroy() override;
+
+  private:
+    void handleCollision();
+};
