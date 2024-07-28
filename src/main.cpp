@@ -2,7 +2,7 @@
 #include "expParticle.hpp"
 #include "fuelMeter.hpp"
 #include "globals.h"
-#include "particleSystem.h"
+#include "particleSystem.hpp"
 #include "raylib.h"
 #include "render.h"
 #include "slime.hpp"
@@ -159,7 +159,7 @@ int main(void) {
     // PlanetTerrain* terrain = genPlanetTerrain(&testPlanet);
 
     ParticleSystem* testSys =
-        createParticleSystem((v2){100, 200}, 10, 5, 4, 10);
+        new ParticleSystem((v2){100, 200}, 10, 5, 4, 10);
     // state = ON_PLANET;
 
     // TEST:
@@ -181,7 +181,7 @@ int main(void) {
         player->update(player);
         ExpParticle::updateAll();
         GameObject::runAll();
-        updateParticleSystem(testSys);
+        testSys->update();
         runAllTasks();
 
         if (IsKeyPressed(KEY_F3)) {
@@ -216,7 +216,7 @@ int main(void) {
 
             player->render(player);
             ExpParticle::drawAll();
-            drawParticleSystem(testSys);
+            testSys->draw();
             drawUI();
             break;
         case GAME_OVER:

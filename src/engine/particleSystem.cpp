@@ -1,79 +1,57 @@
-#include "particleSystem.h"
+#include "particleSystem.hpp"
 
-static void emit(ParticleSystem* ps) {
-    Particle* p = (Particle*)malloc(sizeof(Particle));
-    p->pos = ps->pos;
-    p->vel = (v2){(f32)rand() / RAND_MAX * 2 - 1,
-                  (f32)rand() / RAND_MAX * 2 - 1};
-    p->life = 0;
-    p->maxLife = ps->lifeTime;
-    p->size = ps->size;
-    p->color = (Color){(u8)(rand() % 255), (u8)(rand() % 255),
-                       (u8)(rand() % 255), 255};
-    ParticleNode* node = (ParticleNode*)malloc(sizeof(ParticleNode));
-    node->particle = p;
-    node->next = ps->head;
-    ps->head = node;
+std::list<Particle*> ParticleSystem::particles;
+
+void ParticleSystem::emit() {
+    v2 vel = {(f32)rand() / RAND_MAX * 2 - 1,
+              (f32)rand() / RAND_MAX * 2 - 1};
+    Color color = (Color){(u8)(rand() % 255), (u8)(rand() % 255),
+                          (u8)(rand() % 255), 255};
+
+    Particle* part = new Particle(pos, vel, lifeTime, size, color);
+    particles.push_back(part);
 }
 
-void updateParticleSystem(ParticleSystem* ps) {
-    ps->timer += GetFrameTime();
-    if (ps->timer > ps->rate) {
-        emit(ps);
-        ps->timer = 0;
+void ParticleSystem::update() {
+    timer += GetFrameTime();
+    if (timer > rate) {
+        emit();
+        timer = 0;
     }
 
-    ParticleNode* prev = NULL;
-    ParticleNode* curr = ps->head;
+    for (auto it = particles.begin(); it != particles.end(); it++) {
+        Particle* part = *it;
 
-    while (curr != NULL) {
-        Particle* part = curr->particle;
+        part->pos.x += part->vel.x;
+        part->pos.y += part->vel.y;
+        part->life += GetFrameTime();
 
         if (part->life > part->maxLife) {
-            if (prev == NULL) {
-                ps->head = curr->next;
-                free(part);
-                free(curr);
-                curr = ps->head;
-                continue;
-            } else {
-                prev->next = curr->next;
-                free(part);
-                free(curr);
-                curr = prev->next;
-                continue;
-            }
-
-        } else {
-            part->pos.x += part->vel.x;
-            part->pos.y += part->vel.y;
-            part->life += GetFrameTime();
-            prev = curr;
-            curr = curr->next;
+            it = particles.erase(it);
+            delete part;
         }
     }
 }
 
-void drawParticleSystem(ParticleSystem* ps) {
+void ParticleSystem::draw() {
     // DrawCircleV(ps->pos, 5, RED);
-    ParticleNode* curr = ps->head;
-    while (curr != NULL) {
-        Particle* part = curr->particle;
+    for (auto it = particles.begin(); it != particles.end(); it++) {
+        Particle* part = *it;
         DrawRectangleV(part->pos, (v2){part->size, part->size},
                        part->color);
-        curr = curr->next;
     }
 }
 
-ParticleSystem* createParticleSystem(v2 pos, f32 rate, f32 lifeTime,
-                                     f32 size, f32 speed) {
-    ParticleSystem* ps = (ParticleSystem*)malloc(sizeof(ParticleSystem));
-    ps->head = NULL;
-    ps->pos = pos;
-    ps->rate = 1 / rate;
-    ps->lifeTime = lifeTime;
-    ps->size = size;
-    ps->speed = speed;
-    ps->timer = 0;
-    return ps;
+ParticleSystem::ParticleSystem(v2 pos, f32 rate, f32 lifeTime, f32 size,
+                               f32 speed)
+    : GameObject("particleSystem") {
+    this->pos = pos;
+    this->rate = 1 / rate;
+    this->lifeTime = lifeTime;
+    this->size = size;
+    this->speed = speed;
+    this->timer = 0;
 }
+
+void ParticleSystem::destroy() { return; }
+Rect ParticleSystem::getCollider() { return {}; }
