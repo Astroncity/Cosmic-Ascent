@@ -1,5 +1,6 @@
 #pragma once
 #include "defs.h"
+#include "gameobject.hpp"
 
 /*typedef struct FuelMeter {
     f32 fuel;
@@ -11,7 +12,7 @@
 FuelMeter* FuelMeterCreate(f32 x, f32 y, f32 max);
 void FuelMeterDestroy(FuelMeter* fuelMeter);*/
 
-class FuelMeter {
+class FuelMeter : public GameObject {
   public:
     f32 fuel;
     f32 maxFuel;
@@ -19,4 +20,9 @@ class FuelMeter {
     Rect rect;
 
     FuelMeter(f32 x, f32 y, f32 max);
+    f32 getFuel();
+    void render() override;
+    void update() override;
+    void destroy() override;
+    Rect getCollider() override;
 };

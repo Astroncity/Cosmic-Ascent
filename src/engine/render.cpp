@@ -1,11 +1,12 @@
-#include "render.h"
+#include "render.hpp"
 #include <stdio.h>
 #include <stdlib.h>
 
 RenderNode* renderHead = NULL;
 
 void addRender(RenderData data) {
-    RenderNode* rend = (RenderNode*)malloc(sizeof(RenderNode));
+    // RenderNode* rend = (RenderNode*)malloc(sizeof(RenderNode));
+    RenderNode* rend = new RenderNode();
     rend->data = data;
     rend->next = NULL;
 
@@ -29,8 +30,10 @@ void addRender(RenderData data) {
 }
 
 bool compareRenderData(RenderData a, RenderData b) {
-    if (a.obj == b.obj && a.priority == b.priority &&
-        a.render == b.render) {
+    if (a.priority == b.priority &&
+        a.render.target<void()>() == b.render.target<void()>() &&
+        a.render.target_type() == b.render.target_type() &&
+        a.obj == b.obj) {
         return true;
     }
     return false;
@@ -50,7 +53,7 @@ void removeRender(RenderData data) {
 
             RenderNode* temp = curr;
             curr = curr->next;
-            free(temp);
+            delete temp;
         } else {
             prev = curr;
             curr = curr->next;
@@ -61,7 +64,7 @@ void removeRender(RenderData data) {
 void renderAll() {
     RenderNode* curr = renderHead;
     while (curr != NULL) {
-        curr->data.render(curr->data.obj);
+        curr->data.render();
         curr = curr->next;
     }
 }

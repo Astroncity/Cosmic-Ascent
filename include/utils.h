@@ -14,3 +14,11 @@ v2 v2Clamp(v2 vec, v2 min, v2 max);
 void drawScaledWindow(RenderTexture2D target, f32 sw, f32 sh, f32 scale);
 v2 getScreenMousePos(v2* mouse, f32 scale, i32 sw, i32 sh);
 f32 getAngleToPoint(v2 a, v2 b);
+Color setColorShadow(Color c, i32 shadow);
+Color HSLtoRGB(f32 h, f32 s, f32 l);
+void RGBtoHSL(Color color, f32* h, f32* s, f32* l);
+Color normalizeColor(Color c);
+Color clampColor(i32 r, i32 g, i32 b, i32 a);
+void GenerateAnalogousColors(Color baseColor, Color* analogousColors,
+                             i32 count);
+Color genRandomColor();

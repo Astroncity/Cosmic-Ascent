@@ -1,10 +1,10 @@
 #include "button.hpp"
 #include "expParticle.hpp"
 #include "fuelMeter.hpp"
-#include "globals.h"
+#include "gameobject.hpp"
+#include "globals.hpp"
 #include "particleSystem.hpp"
 #include "raylib.h"
-#include "render.h"
 #include "slime.hpp"
 #include "slimeGhoul.hpp"
 #include "task.h"
@@ -110,7 +110,7 @@ void drawUI(void) {
     thumbPos.x -= 12 * UI_SCALE;
     thumbPos.y -= 12 * UI_SCALE;
 
-    drawPlanetThumbnail(thumbPos, currentPlanet);
+    currentPlanet->drawThumbnail(thumbPos);
     // DrawFPS(100, 100);
 
     DrawText(TextFormat("%d", player->level), 294, 6, 10, WHITE);
@@ -120,7 +120,7 @@ void enterPlanet() {
     // eventually planets will be preloaded and
     // selected from a menu, for now we just generate one
 
-    currentPlanet = genPlanet(64, true);
+    currentPlanet = new Planet(64, true);
     currentTerrain = genPlanetTerrain(currentPlanet);
     state = ON_PLANET;
 
@@ -150,7 +150,7 @@ int main(void) {
 
     // const u16 imgSize = 64;
 
-    player = PlayerCreate(screenWidth / 2.0, screenHeight / 2.0);
+    player = new Player(screenWidth / 2.0, screenHeight / 2.0);
     Sword* sword = createSword(player, &mouse, WHITE);
     player->weaponData = (WeaponData){sword, sword->use, sword->render};
 
@@ -158,9 +158,8 @@ int main(void) {
     // testPlanet.pos = (v2){screenWidth - 350, screenHeight / 2.0 - 128};
     // PlanetTerrain* terrain = genPlanetTerrain(&testPlanet);
 
-    ParticleSystem* testSys =
-        new ParticleSystem((v2){100, 200}, 10, 5, 4, 10);
-    // state = ON_PLANET;
+    // new ParticleSystem((v2){100, 200}, 10, 5, 4, 10);
+    //  state = ON_PLANET;
 
     // TEST:
     startButtonT = LoadTexture("assets/images/startButton.png");
@@ -178,10 +177,8 @@ int main(void) {
                         (float)GetScreenHeight() / screenHeight);
 
         mouse = getScreenMousePos(&mouse, scale, screenWidth, screenHeight);
-        player->update(player);
         ExpParticle::updateAll();
         GameObject::runAll();
-        testSys->update();
         runAllTasks();
 
         if (IsKeyPressed(KEY_F3)) {
@@ -214,9 +211,7 @@ int main(void) {
             DrawTextureEx(currentTerrain->texture, (v2){}, 0, LEVEL_SCALE,
                           WHITE);
 
-            player->render(player);
             ExpParticle::drawAll();
-            testSys->draw();
             drawUI();
             break;
         case GAME_OVER:
@@ -224,6 +219,7 @@ int main(void) {
         }
 
         renderAll();
+
         handleLevelupUI();
 
         // DrawText(TextFormat("Mouse: (%f, %f)", mouse.x, mouse.y), 0, 0,

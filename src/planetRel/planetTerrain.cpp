@@ -1,9 +1,10 @@
-#include "planetTerrain.h"
+#include "planetTerrain.hpp"
 #include "defs.h"
-#include "globals.h"
-#include "planet.h"
+#include "globals.hpp"
+#include "planet.hpp"
 #include "raylib.h"
 #include "rock.hpp"
+#include "utils.h"
 #include <stdlib.h>
 
 const i32 imgSize = 480;

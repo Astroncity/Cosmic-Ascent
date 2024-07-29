@@ -64,7 +64,7 @@ class ParticleSystem : public GameObject {
     void update() override;
     Rect getCollider() override;
     void destroy() override;
-    void draw();
+    void render() override;
     void emit();
     // void destroy() override;
 };

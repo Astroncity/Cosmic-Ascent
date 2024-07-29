@@ -1,7 +1,7 @@
 #pragma once
-#include "planet.h"
-#include "planetTerrain.h"
-#include "player.h"
+#include "planet.hpp"
+#include "planetTerrain.hpp"
+#include "player.hpp"
 
 typedef enum GameState {
     MAIN_MENU,

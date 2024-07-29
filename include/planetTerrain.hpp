@@ -1,5 +1,5 @@
 #pragma once
-#include "planet.h"
+#include "planet.hpp"
 
 #define LEVEL_SCALE 1
 

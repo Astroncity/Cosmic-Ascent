@@ -1,4 +1,4 @@
-#include "globals.h"
+#include "globals.hpp"
 
 Planet* currentPlanet = NULL;
 PlanetTerrain* currentTerrain = NULL;

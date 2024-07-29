@@ -1,9 +1,9 @@
 #pragma once
 #include "defs.h"
-
+#include <functional>
 typedef struct RenderData {
     void* obj;
-    void (*render)(void*);
+    std::function<void()> render;
     i32 priority;
 } RenderData;
 

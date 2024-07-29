@@ -1,5 +1,5 @@
-#include "player.h"
-#include "globals.h"
+#include "player.hpp"
+#include "gameobject.hpp"
 #include "raylib.h"
 #include "sword.hpp"
 #include "task.h"
@@ -11,11 +11,6 @@ static const f32 PLAYER_SCALE = 1;
 
 static Texture2D playerTextures[4];
 static bool loadedTextures = false;
-static bool dashing = false;
-static f32 dashTimer = 0;
-static f32 immunityTimer = 0;
-
-static u8 playerDirection = 0;
 
 static i32 getExpThreshold(i32 level) { return level * level + 25; }
 
@@ -31,14 +26,14 @@ static DashData dashData = {
     .start = 0,
     .duration = 0.20,
     .player = NULL,
-    .playerDirection = &playerDirection,
-    .dashing = &dashing,
+    .playerDirection = NULL,
+    .dashing = NULL,
 };
 
-Rect getPlayerCollider(Player* plr) {
-    Rect col = plr->rect;
-    col.x -= plr->rect.width / 2;
-    col.y -= plr->rect.height / 2;
+Rect Player::getCollider() {
+    Rect col = rect;
+    col.x -= rect.width / 2;
+    col.y -= rect.height / 2;
     return col;
 }
 
@@ -67,14 +62,13 @@ static void dashTask(TASK_PARAMS) {
     }
 }
 
-static void render(void* p) {
+void Player::render() {
     Texture2D texture = playerTextures[playerDirection];
-    Player* player = (Player*)p;
     Rect src = {0, 0, (f32)texture.width, (f32)texture.height};
-    v2 origin = {player->rect.width / 2, player->rect.height};
+    v2 origin = {rect.width / 2, rect.height};
 
-    DrawTexturePro(texture, src, player->rect, origin, 0, WHITE);
-    player->weaponData.render(player->weaponData.weapon);
+    DrawTexturePro(texture, src, rect, origin, 0, WHITE);
+    weaponData.render(weaponData.weapon);
 }
 
 static void loadTextures() {
@@ -88,60 +82,62 @@ static void loadTextures() {
         playerTextures[3] =
             LoadTexture("assets/images/player/playerRight.png");
     }
+    loadedTextures = true;
 }
 
-static void onLevelup(Player* plr) {
-    plr->level++;
-    plr->exp = 0;
-    plr->expThreshold = getExpThreshold(plr->level);
+void Player::onLevelup() {
+    level++;
+    exp = 0;
+    expThreshold = getExpThreshold(level);
 }
 
-static void movePlayer(Player* plr) {
+void Player::move() {
     f32 delta = GetFrameTime();
-    f32 localSpeed = plr->speed * delta;
+    f32 localSpeed = speed * delta;
     if (IsKeyDown(KEY_LEFT_SHIFT)) {
         localSpeed *= 2;
     }
     if (IsKeyDown(KEY_W)) {
-        plr->rect.y -= localSpeed;
+        rect.y -= localSpeed;
         playerDirection = 1;
     }
     if (IsKeyDown(KEY_S)) {
-        plr->rect.y += localSpeed;
+        rect.y += localSpeed;
         playerDirection = 0;
     }
     if (IsKeyDown(KEY_A)) {
-        plr->rect.x -= localSpeed;
+        rect.x -= localSpeed;
         playerDirection = 2;
     }
     if (IsKeyDown(KEY_D)) {
-        plr->rect.x += localSpeed;
+        rect.x += localSpeed;
         playerDirection = 3;
     }
 
     if (IsKeyPressed(KEY_F3)) {
-        plr->health -= 10;
+        health -= 10;
     }
 }
 
-static void update(void* p) {
-    Player* plr = (Player*)p;
-    if (!dashing) movePlayer(plr);
+void Player::update() {
+    if (!dashing) move();
 
-    if (plr->canDash && !dashing && IsKeyPressed(KEY_SPACE) &&
-        GetTime() > dashTimer + plr->dashCooldown) {
+    if (canDash && !dashing && IsKeyPressed(KEY_SPACE) &&
+        GetTime() > dashTimer + dashCooldown) {
 
         dashTimer = GetTime();
         dashing = true;
         dashData.start = GetTime();
-        dashData.player = plr;
+        dashData.player = this;
+        dashData.playerDirection = &playerDirection;
+        dashData.dashing = &dashing;
         createTask("player dash", &dashData, dashTask);
     }
 
-    plr->weaponData.use(plr->weaponData.weapon);
+    weaponData.use(weaponData.weapon);
 
-    if (plr->exp >= plr->expThreshold) {
-        onLevelup(plr);
+    if (exp >= expThreshold) {
+        onLevelup();
     }
 
     if (immunityTimer > 0) {
@@ -149,27 +145,29 @@ static void update(void* p) {
     }
 }
 
-void damagePlayer(f32 dmg) {
+void Player::damage(f32 dmg) {
     if (immunityTimer > 0) return;
-    player->health -= dmg;
+    health -= dmg;
     immunityTimer = 0.1;
 }
 
-Player* PlayerCreate(f32 x, f32 y) {
+void Player::destroy() { return; }
+
+Player::Player(f32 x, f32 y) : GameObject("player", 2) {
     loadTextures();
-    Player* player = (Player*)malloc(sizeof(Player));
-    player->speed = PLAYER_SPEED;
+    speed = PLAYER_SPEED;
     i32 w = playerTextures[0].width * PLAYER_SCALE;
     i32 h = playerTextures[0].height * PLAYER_SCALE;
-    player->rect = (Rect){x, y, (f32)w, (f32)h};
-    player->render = render;
-    player->update = update;
-    player->maxHealth = 100;
-    player->health = player->maxHealth;
-    player->expThreshold = getExpThreshold(0);
-    player->exp = 0;
-    player->level = 0;
-    player->canDash = false;
-    player->dashCooldown = 5.0;
-    return player;
+    rect = {x, y, w, h};
+    maxHealth = 100;
+    health = maxHealth;
+    expThreshold = getExpThreshold(0);
+    exp = 0;
+    level = 0;
+    canDash = false;
+    dashCooldown = 5.0;
+    dashTimer = 0;
+    dashing = false;
+    playerDirection = 0;
+    immunityTimer = 0;
 }

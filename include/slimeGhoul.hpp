@@ -29,6 +29,7 @@ class SlimeGhoul : public GameObject {
     Rect getCollider() override;
     void update() override;
     void destroy() override;
+    void render() override;
 
   private:
     void handleCollision();

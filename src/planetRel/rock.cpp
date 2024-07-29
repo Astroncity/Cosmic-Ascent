@@ -1,7 +1,6 @@
 #include "rock.hpp"
 #include "expParticle.hpp"
 #include "raylib.h"
-#include "render.h"
 
 const char* TEXTURE_PATH = "assets/images/rock.png";
 const i32 RENDER_PRIORITY = 5;
@@ -19,10 +18,10 @@ Rect Rock::getCollider() {
     return cpy;
 }
 
-static void drawCol(Rock* rock) {
-    Rect cpy = rock->rect;
-    cpy.x -= rock->rect.width / 2;
-    cpy.y -= rock->rect.height / 2;
+void Rock::drawCol() {
+    Rect cpy = rect;
+    cpy.x -= rect.width / 2;
+    cpy.y -= rect.height / 2;
     DrawRectangleLines(cpy.x, cpy.y, cpy.width, cpy.height, GREEN);
 }
 
@@ -32,23 +31,21 @@ void Rock::update() {
     }
 }
 
-static void render(void* rockP) {
-    Rock* rock = (Rock*)rockP;
+void Rock::render() {
+    Rect dest = rect;
 
-    Rect dest = rock->rect;
-
-    Rect src = {0, 0, rock->rect.width, rock->rect.height};
+    Rect src = {0, 0, rect.width, rect.height};
     v2 org = {dest.width / 2, dest.height / 2};
     // shadow
     // DrawEllipse(rock->rect.x, rock->rect.y + 7, dest.width / 2,
     // dest.height / 4, shadowTint);
     Rect shadowDest = dest;
     shadowDest.y += 3;
-    DrawTexturePro(rock->texture, src, shadowDest, org, 0, shadowTint);
+    DrawTexturePro(texture, src, shadowDest, org, 0, shadowTint);
 
-    DrawTexturePro(rock->texture, src, dest, org, 0, rock->cl);
-    rock->healthBar->render(rock->cl, true);
-    if (false) drawCol(rock);
+    DrawTexturePro(texture, src, dest, org, 0, cl);
+    healthBar->render(cl, true);
+    if (false) drawCol();
 }
 
 void Rock::destroy() {
@@ -60,7 +57,7 @@ void Rock::destroy() {
 
     ExpParticle::batchCreate((Vector2){rect.x, rect.y}, cl, ROCK_EXP, 10);
 
-    removeRender(RenderData{(void*)this, render, RENDER_PRIORITY});
+    removeRender(renderData);
     delete healthBar;
     markedForDeletion = true;
 }
@@ -86,7 +83,7 @@ bool Rock::hit() {
     return false;
 }
 
-Rock::Rock(f32 x, f32 y, Color cl) : GameObject("rock") {
+Rock::Rock(f32 x, f32 y, Color cl) : GameObject("rock", RENDER_PRIORITY) {
     if (rockTexture.id == 0) {
         Image temp = LoadImage(TEXTURE_PATH);
         rockTexture = LoadTextureFromImage(temp);
@@ -99,5 +96,4 @@ Rock::Rock(f32 x, f32 y, Color cl) : GameObject("rock") {
     maxHealth = 3;
     invulnerableTimer = 0;
     healthBar = new Bar(x - 8, y - 10, maxHealth, false);
-    addRender(RenderData{this, render, RENDER_PRIORITY});
 }

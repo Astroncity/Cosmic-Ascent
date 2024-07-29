@@ -1,6 +1,5 @@
 #include "fuelMeter.hpp"
 #include "raylib.h"
-#include "render.h"
 #include "utils.h"
 
 static Texture2D fuelBase;
@@ -17,30 +16,45 @@ static const v2 lightPos = {85, 8};
 static const v2 barPos = {10, 26};
 static const i32 RENDER_PRIORITY = 20;
 
-static void render(void* obj) {
+void FuelMeter::render() {
     // NOTE:  base texture contains the background of the progress bar
-    FuelMeter* fm = (FuelMeter*)obj;
-    DrawTexture(fuelBase, fm->rect.x, fm->rect.y, WHITE);
+    DrawTexture(fuelBase, rect.x, rect.y, WHITE);
 
-    fm->currFuel = lerp(fm->currFuel, fm->fuel, 0.1f);
+    currFuel = lerp(currFuel, fuel, 0.1f);
 
-    f32 scale = fm->currFuel / fm->maxFuel;
+    f32 scale = currFuel / maxFuel;
     Rect n = (Rect){barPos.x, barPos.y, fuelBar.width, fuelBar.height};
     Rect src = {0, 0, fuelBarWidth * scale, fuelBarHeight};
     n.width *= scale;
 
-    DrawTexture(fuelBase, fm->rect.x, fm->rect.y, WHITE);
+    DrawTexture(fuelBase, rect.x, rect.y, WHITE);
     DrawTexturePro(fuelBar, src, n, (v2){0, 0}, 0, WHITE);
     Texture2D light;
-    if (fm->currFuel > fm->maxFuel * 0.99) {
+    if (currFuel > maxFuel * 0.99) {
         light = lightGreen;
     } else {
         light = lightYellow;
     }
 
-    DrawTexture(light, fm->rect.x + lightPos.x, fm->rect.y + lightPos.y,
-                WHITE);
+    DrawTexture(light, rect.x + lightPos.x, rect.y + lightPos.y, WHITE);
 }
+
+void FuelMeter::update() {
+    if (fuel > maxFuel) {
+        fuel = maxFuel;
+    }
+}
+
+void FuelMeter::destroy() {
+    UnloadTexture(fuelBase);
+    UnloadTexture(fuelBar);
+    UnloadTexture(lightGreen);
+    UnloadTexture(lightYellow);
+    loaded = false;
+    markedForDeletion = true;
+}
+
+Rect FuelMeter::getCollider() { return rect; }
 
 static void init(void) {
     if (!loaded) {
@@ -57,12 +71,9 @@ static void init(void) {
     }
 }
 
-FuelMeter::FuelMeter(f32 x, f32 y, f32 max) {
+FuelMeter::FuelMeter(f32 x, f32 y, f32 max) : GameObject("fuelMeter", 25) {
     init();
-
     fuel = 0;
     maxFuel = max;
     rect = (Rect){x, y, 100, 20};
-
-    addRender((RenderData){this, render, RENDER_PRIORITY});
 }

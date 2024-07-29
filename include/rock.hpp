@@ -36,4 +36,8 @@ class Rock : public GameObject {
     void update() override;
     void destroy() override;
     Rect getCollider() override;
+    void render() override;
+
+  private:
+    void drawCol();
 };

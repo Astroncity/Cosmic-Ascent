@@ -1,5 +1,6 @@
 #pragma once
 #include "defs.h"
+#include "gameobject.hpp"
 
 /*typedef struct Button {
     Texture2D texture;
@@ -12,7 +13,7 @@
 Button* ButtonCreate(v2 pos, Texture2D texture, void (*onClick)(void));
 void ButtonDestroy(Button* button);*/
 
-class Button {
+class Button : public GameObject {
   public:
     Texture2D texture;
     Rectangle bounds;
@@ -21,5 +22,8 @@ class Button {
     bool hovered;
 
     Button(v2 pos, Texture2D texture, void (*onClick)(void));
-    void destroy();
+    void destroy() override;
+    void render() override;
+    void update() override;
+    Rect getCollider() override;
 };

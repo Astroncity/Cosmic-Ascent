@@ -1,5 +1,6 @@
 #pragma once
 #include "defs.h"
+#include "render.hpp"
 #include <list>
 
 /*typedef struct GameObject GameObject;
@@ -30,16 +31,16 @@ class GameObject {
   public:
     const char* tag;
     bool markedForDeletion;
+    i32 renderPriority;
+    RenderData renderData;
 
-    GameObject(const char* tag) {
-        this->tag = tag;
-        markedForDeletion = false;
-        gameObjects.push_back(this);
-    }
+    GameObject(const char* tag, i32 renderPriority);
+    GameObject(const char* tag);
 
     virtual Rect getCollider() = 0;
     virtual void update() = 0;
     virtual void destroy() = 0;
+    virtual void render() = 0;
 
     static void runAll();
     static std::list<GameObject*> gameObjects;

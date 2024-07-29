@@ -1,7 +1,6 @@
 #include "sword.hpp"
 #include "gameobject.hpp"
-#include "globals.h"
-#include "player.h"
+#include "globals.hpp"
 #include "raylib.h"
 #include "rock.hpp"
 #include "slime.hpp"
@@ -199,6 +198,7 @@ static void use(void* swordP) {
         newData->start = GetTime();
         newData->sword = sword;
         createTask("sword spin", newData, spinTask);
+        printf("spun\n");
     }
 }
 

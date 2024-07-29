@@ -1,9 +1,7 @@
 #include "slimeGhoul.hpp"
 #include "expParticle.hpp"
-#include "globals.h"
-#include "player.h"
+#include "globals.hpp"
 #include "raylib.h"
-#include "render.h"
 #include "slimeProjectile.hpp"
 #include "utils.h"
 #include <math.h>
@@ -25,31 +23,29 @@ static void init() {
     }
 }
 
-static void render(void* ghoulP) {
-    SlimeGhoul* ghoul = (SlimeGhoul*)ghoulP;
-    v2 shadowPos = {ghoul->rect.x + ghoul->rect.width / 2,
-                    ghoul->rect.y + ghoul->rect.height / 2};
+void SlimeGhoul::render() {
+    v2 shadowPos = {rect.x + rect.width / 2, rect.y + rect.height / 2};
 
-    DrawEllipse(shadowPos.x, shadowPos.y + 7, ghoul->rect.width / 2.5,
-                ghoul->rect.height / 4, (Color){0, 0, 0, 150});
+    DrawEllipse(shadowPos.x, shadowPos.y + 7, rect.width / 2.5,
+                rect.height / 4, (Color){0, 0, 0, 150});
 
     Rect src = {0, 0, 16, 16};
-    src.x = (i32)ghoul->frame * 16;
-    Rect dest = {ghoul->rect.x, ghoul->rect.y, 16, 16};
+    src.x = (i32)frame * 16;
+    Rect dest = {rect.x, rect.y, 16, 16};
 
     DrawTexturePro(slimeGhoulAtlas, src, dest, (Vector2){0, 0}, 0, WHITE);
-    ghoul->healthBar->render(GREEN, true);
+    healthBar->render(GREEN, true);
 }
 
 void SlimeGhoul::handleCollision() {
-    if (CheckCollisionRecs(getPlayerCollider(player), rect)) {
-        damagePlayer(1);
+    if (CheckCollisionRecs(player->getCollider(), rect)) {
+        player->damage(1);
     }
 }
 
 void SlimeGhoul::destroy() {
     ExpParticle::batchCreate((v2){rect.x, rect.y}, GREEN, 10, 5);
-    removeRender((RenderData){(void*)this, render, RENDER_PRIORITY});
+    removeRender(renderData);
     delete healthBar;
     markedForDeletion = true;
 }
@@ -62,7 +58,7 @@ void SlimeGhoul::update() {
     rect.x += cos(ang * DEG2RAD) * GHOUL_SPEED * GetFrameTime();
     rect.y += sin(ang * DEG2RAD) * GHOUL_SPEED * GetFrameTime();
 
-    frame = fmodf(frame + 0.10, frameCount);
+    frame = fmodf(frame + 10 * GetFrameTime(), frameCount);
     healthBar->value = health;
     healthBar->updatePos(rect.x, rect.y);
     handleCollision();
@@ -75,13 +71,13 @@ void SlimeGhoul::update() {
     if (projectileTimer > GHOUL_PROJ_COOLDOWN) {
         projectileTimer = 0;
         v2 pos = {rect.x, rect.y};
-        SlimeProjectileCreate(pos, ang, 50);
+        new SlimeProjectile(pos, ang, 50);
     }
 }
 
 Rect SlimeGhoul::getCollider() { return rect; }
 
-SlimeGhoul::SlimeGhoul(v2 pos) : GameObject("slimeGhoul") {
+SlimeGhoul::SlimeGhoul(v2 pos) : GameObject("slimeGhoul", RENDER_PRIORITY) {
     init();
     rect = (Rect){pos.x, pos.y, 16, 16};
     frame = 0;
@@ -89,6 +85,4 @@ SlimeGhoul::SlimeGhoul(v2 pos) : GameObject("slimeGhoul") {
     maxHealth = 50;
     health = maxHealth;
     healthBar = new Bar(0, 0, maxHealth, false);
-
-    addRender((RenderData){this, render, RENDER_PRIORITY});
 }

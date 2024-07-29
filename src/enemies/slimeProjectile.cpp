@@ -1,6 +1,5 @@
 #include "slimeProjectile.hpp"
-#include "globals.h"
-#include "player.h"
+#include "globals.hpp"
 #include "raylib.h"
 #include <math.h>
 #include <stdio.h>
@@ -18,49 +17,40 @@ static void init() {
     }
 }
 
-static void destroy(SlimeProjectile* proj) {
-    removeRender(proj->renderData);
-    free(proj);
+void SlimeProjectile::destroy() {
+    removeRender(renderData);
+    markedForDeletion = true;
 }
 
-static void update(void* projP) {
-    SlimeProjectile* proj = (SlimeProjectile*)projP;
+Rect SlimeProjectile::getCollider() { return {}; }
 
-    proj->pos.x +=
-        cos(proj->direction * DEG2RAD) * proj->speed * GetFrameTime();
-    proj->pos.y +=
-        sin(proj->direction * DEG2RAD) * proj->speed * GetFrameTime();
-    if (CheckCollisionCircleRec(proj->pos, 8, getPlayerCollider(player))) {
-        damagePlayer(1);
-        destroy(proj);
+void SlimeProjectile::update() {
+
+    pos.x += cos(direction * DEG2RAD) * speed * GetFrameTime();
+    pos.y += sin(direction * DEG2RAD) * speed * GetFrameTime();
+    if (CheckCollisionCircleRec(pos, 8, player->getCollider())) {
+        player->damage(1);
+        destroy();
         return;
     }
 
     // bounds check
-    if (proj->pos.x < 0 || proj->pos.x > screenWidth || proj->pos.y < 0 ||
-        proj->pos.y > screenHeight) {
-        destroy(proj);
+    if (pos.x < 0 || pos.x > screenWidth || pos.y < 0 ||
+        pos.y > screenHeight) {
+        destroy();
     }
 }
 
-static void render(void* projP) {
-    update(projP);
-    SlimeProjectile* proj = (SlimeProjectile*)projP;
+void SlimeProjectile::render() {
     DrawTexturePro(slimeProjectile,
-                   (Rect){0, 0, (f32)slimeProjectile.width,
-                          (f32)slimeProjectile.height},
-                   (Rect){proj->pos.x, proj->pos.y, 8, 8}, (Vector2){},
-                   proj->direction, WHITE);
+                   {0, 0, slimeProjectile.width, slimeProjectile.height},
+                   {pos.x, pos.y, 8, 8}, {}, direction, WHITE);
 }
 
-SlimeProjectile* SlimeProjectileCreate(v2 start, f32 dir, f32 speed) {
+SlimeProjectile::SlimeProjectile(v2 start, f32 dir, f32 speed)
+    : GameObject("slimeProjectile", RENDER_PRIORITY) {
     init();
-    SlimeProjectile* proj =
-        (SlimeProjectile*)malloc(sizeof(SlimeProjectile));
-    proj->pos = start;
-    proj->direction = dir;
-    proj->speed = speed;
-    proj->renderData = (RenderData){proj, render, RENDER_PRIORITY};
-    addRender(proj->renderData);
-    return proj;
+    pos = start;
+    direction = dir;
+    this->speed = speed;
 }

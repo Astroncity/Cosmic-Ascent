@@ -1,6 +1,6 @@
 #include "upgradeCard.h"
-#include "globals.h"
-#include "textEffects.h"
+#include "globals.hpp"
+#include "textEffects.hpp"
 #include <stdio.h>
 #include <stdlib.h>
 

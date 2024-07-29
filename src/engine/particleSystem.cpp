@@ -33,7 +33,7 @@ void ParticleSystem::update() {
     }
 }
 
-void ParticleSystem::draw() {
+void ParticleSystem::render() {
     // DrawCircleV(ps->pos, 5, RED);
     for (auto it = particles.begin(); it != particles.end(); it++) {
         Particle* part = *it;
@@ -44,7 +44,7 @@ void ParticleSystem::draw() {
 
 ParticleSystem::ParticleSystem(v2 pos, f32 rate, f32 lifeTime, f32 size,
                                f32 speed)
-    : GameObject("particleSystem") {
+    : GameObject("particleSystem", 10) {
     this->pos = pos;
     this->rate = 1 / rate;
     this->lifeTime = lifeTime;

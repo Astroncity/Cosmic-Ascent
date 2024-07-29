@@ -1,6 +1,5 @@
 #include "expParticle.hpp"
-#include "globals.h"
-#include "player.h"
+#include "globals.hpp"
 #include "raylib.h"
 #include <list>
 
@@ -11,7 +10,7 @@ static std::list<ExpParticle*> expParticles;
 
 bool collides(ExpParticle* p) {
     if (CheckCollisionCircleRec(p->pos, EXP_PARTICLE_RAD,
-                                getPlayerCollider(player))) {
+                                player->getCollider())) {
         return true;
     }
     return false;
