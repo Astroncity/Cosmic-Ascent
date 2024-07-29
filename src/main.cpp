@@ -7,8 +7,8 @@
 #include "raylib.h"
 #include "slime.hpp"
 #include "slimeGhoul.hpp"
-#include "task.h"
-#include "upgradeCard.h"
+#include "task.hpp"
+#include "upgradeCard.hpp"
 #include "utils.h"
 #include <math.h>
 #include <stdio.h>
@@ -179,10 +179,10 @@ int main(void) {
         mouse = getScreenMousePos(&mouse, scale, screenWidth, screenHeight);
         ExpParticle::updateAll();
         GameObject::runAll();
-        runAllTasks();
+        Task::runAll();
 
         if (IsKeyPressed(KEY_F3)) {
-            printRunningTasks();
+            Task::log();
         }
 
         switch (state) {
@@ -220,7 +220,7 @@ int main(void) {
 
         renderAll();
 
-        handleLevelupUI();
+        UpgradeCard::handleLevelupUI();
 
         // DrawText(TextFormat("Mouse: (%f, %f)", mouse.x, mouse.y), 0, 0,
         // 10,

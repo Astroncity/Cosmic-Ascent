@@ -2,7 +2,7 @@
 #include "gameobject.hpp"
 #include "raylib.h"
 #include "sword.hpp"
-#include "task.h"
+#include "task.hpp"
 #include <stdio.h>
 
 static const f32 PLAYER_SPEED = 50;
@@ -131,7 +131,7 @@ void Player::update() {
         dashData.player = this;
         dashData.playerDirection = &playerDirection;
         dashData.dashing = &dashing;
-        createTask("player dash", &dashData, dashTask);
+        new Task("player dash", &dashData, dashTask);
     }
 
     weaponData.use(weaponData.weapon);

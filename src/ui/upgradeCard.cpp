@@ -1,14 +1,18 @@
-#include "upgradeCard.h"
+#include "upgradeCard.hpp"
 #include "globals.hpp"
 #include "textEffects.hpp"
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
 
 const char* UPGRADE_NAMES[] = {
     "Sword Length", "Sword Damage", "Sword Speed", "Dash", "Exp",
 };
 
 typedef void (*UpgradeFunc)(void);
+std::vector<UpgradeCard*> UpgradeCard::activeCards;
+i32 UpgradeCard::levelsProcessed = 0;
+bool UpgradeCard::active = false;
 
 static Texture2D* ICON_TEXTURES;
 static Texture2D* TXT_TEXTURES; // NOTE: must be 52x55 px
@@ -18,10 +22,6 @@ static Texture2D cardFrame;
 static bool loaded = false;
 static v2 initCardPos = {111, 104};
 static i32 cardOffset = 97;
-static i32 cardsDrawn = 0;
-static bool active = false;
-static i32 levelsProcessed = 0;
-static UpgradeCard** activeCards;
 
 Font alagard;
 
@@ -84,72 +84,65 @@ void UpgradeCardInit() {
     }
 }
 
-void UpgradeFrameDraw() { DrawTextureV(cardFrame, (v2){99, 49}, WHITE); }
+void UpgradeCard::drawFrame() { DrawTextureV(cardFrame, {99, 49}, WHITE); }
 
-UpgradeCard* UpgradeCardCreate() {
+UpgradeCard::UpgradeCard() {
     UpgradeCardInit();
-    UpgradeCard* card = (UpgradeCard*)malloc(sizeof(UpgradeCard));
-    i32 type = GetRandomValue(0, 2);
-    card->type = (UpgradeType)type;
-    card->pos = initCardPos;
-    card->hovering = false;
+    type = (UpgradeType)GetRandomValue(0, 2);
+    pos = initCardPos;
+    hovering = false;
     initCardPos.x += cardOffset;
-    cardsDrawn++;
-    return card;
 }
 
-void UpgradeCardUpdate(UpgradeCard* card) {
-    Rect rect = {card->pos.x, card->pos.y, cardTexture.width,
-                 cardTexture.height};
+void UpgradeCard::update() {
+    Rect rect = {pos.x, pos.y, cardTexture.width, cardTexture.height};
 
     if (CheckCollisionPointRec(mouse, rect)) {
-        card->hovering = true;
+        hovering = true;
     } else {
-        card->hovering = false;
+        hovering = false;
     }
 
-    if (card->hovering && IsMouseButtonPressed(0)) {
-        UPGRADE_FUNCS[card->type]();
+    if (hovering && IsMouseButtonPressed(0)) {
+        UPGRADE_FUNCS[type]();
         levelsProcessed++;
         active = false;
     }
 }
 
-void UpgradeCardDraw(UpgradeCard* card) {
-    Texture2D icon = ICON_TEXTURES[card->type];
-    Texture2D txt = TXT_TEXTURES[card->type];
+void UpgradeCard::draw() {
+    Texture2D icon = ICON_TEXTURES[type];
+    Texture2D txt = TXT_TEXTURES[type];
     Color tint = WHITE;
 
-    if (card->hovering) tint = (Color){200, 200, 200, 255};
+    if (hovering) tint = (Color){200, 200, 200, 255};
 
-    DrawTextureV(cardTexture, card->pos, tint);
-    DrawTextureV(icon, (v2){card->pos.x + 7, card->pos.y + 30}, tint);
-    DrawTextureV(txt, (v2){card->pos.x + 3, card->pos.y + 3}, tint);
+    DrawTextureV(cardTexture, pos, tint);
+    DrawTextureV(icon, (v2){pos.x + 7, pos.y + 30}, tint);
+    DrawTextureV(txt, (v2){pos.x + 3, pos.y + 3}, tint);
 }
 
-static void initUI() {
+void UpgradeCard::initUI() {
     if (active == true) {
-        for (int i = 0; i < 3; i++) {
-            free(activeCards[i]);
+        for (auto p : activeCards) {
+            delete p;
         }
-        free(activeCards);
-    } else {
-        active = true;
+        activeCards.clear();
     }
+
     initCardPos.x = 111;
-    activeCards = (UpgradeCard**)malloc(sizeof(UpgradeCard) * 3);
     for (int i = 0; i < 3; i++) {
-        activeCards[i] = UpgradeCardCreate();
+        activeCards.push_back(new UpgradeCard());
     }
 }
 
-void handleLevelupUI() {
+void UpgradeCard::handleLevelupUI() {
     if (player->level > levelsProcessed) {
         if (!active) initUI();
-        UpgradeFrameDraw();
+        drawFrame();
         for (int i = 0; i < 3; i++) {
-            UpgradeCardUpdate(activeCards[i]);
-            UpgradeCardDraw(activeCards[i]);
+            activeCards[i]->update();
+            activeCards[i]->draw();
         }
     }
 }

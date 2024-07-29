@@ -1,72 +1,34 @@
-#include "task.h"
+#include "task.hpp"
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 
-TaskNode* taskHead = NULL;
+std::list<Task*> Task::tasks;
 
-static void insertTask(Task* task) {
-    TaskNode* tk = (TaskNode*)malloc(sizeof(TaskNode));
-    tk->task = task;
-    tk->next = NULL;
-
-    TaskNode* curr = taskHead;
-
-    if (taskHead == NULL) {
-        taskHead = tk;
-        return;
-    }
-
-    while (curr->next != NULL) {
-        curr = curr->next;
-    }
-
-    curr->next = tk;
+Task::Task(std::string name, void* taskData, void (*run)(TASK_PARAMS)) {
+    this->taskData = taskData;
+    this->run = run;
+    this->name = name;
+    this->setForDeletion = false;
+    tasks.push_back(this);
 }
 
-Task* createTask(const char* name, void* taskData,
-                 void (*run)(void*, Task*)) {
-    Task* task = (Task*)malloc(sizeof(Task));
-    task->taskData = taskData;
-    task->run = run;
-    task->name = name;
-    task->setForDeletion = false;
-
-    insertTask(task);
-
-    return task;
-}
-
-void runAllTasks() {
-    TaskNode* curr = taskHead;
-    TaskNode* prev = NULL;
-
-    while (curr != NULL) {
-        curr->task->run(curr->task->taskData, curr->task);
-
-        if (curr->task->setForDeletion) {
-            if (prev == NULL) {
-                taskHead = curr->next;
-            } else {
-                prev->next = curr->next;
-            }
-
-            TaskNode* temp = curr;
-            curr = curr->next;
-            free(temp->task);
-            free(temp);
+void Task::runAll() {
+    for (std::list<Task*>::iterator it = tasks.begin(); it != tasks.end();
+         ++it) {
+        Task* task = *it;
+        if (!task->setForDeletion) {
+            task->run(task->taskData, task);
         } else {
-            prev = curr;
-            curr = curr->next;
+            it = tasks.erase(it);
         }
     }
 }
 
-void printRunningTasks() {
-    TaskNode* curr = taskHead;
+void Task::log() {
     printf("[---COROUTINES---]\n");
-    while (curr != NULL) {
-        printf("%s -> ", curr->task->name);
-        curr = curr->next;
+    for (auto task : tasks) {
+        std::cout << task->name + " -> ";
     }
     printf("\n");
 }

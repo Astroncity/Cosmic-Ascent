@@ -5,7 +5,7 @@
 #include "rock.hpp"
 #include "slime.hpp"
 #include "slimeGhoul.hpp"
-#include "task.h"
+#include "task.hpp"
 #include "utils.h"
 #include <math.h>
 #include <stdio.h>
@@ -94,7 +94,7 @@ static void spinTask(TASK_PARAMS) {
     Sword* sword = data->sword;
 
     bool ended = GetTime() >= data->start + data->runTime;
-    if (ended || (sword->underRecoil && data->type != RECOIL_SPIN)) {
+    if (ended) {
         sword->mouseControl = true;
         task->setForDeletion = true;
 
@@ -197,7 +197,7 @@ static void use(void* swordP) {
         *newData = spinData;
         newData->start = GetTime();
         newData->sword = sword;
-        createTask("sword spin", newData, spinTask);
+        new Task("sword spin", newData, spinTask);
         printf("spun\n");
     }
 }
