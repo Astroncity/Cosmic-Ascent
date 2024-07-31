@@ -1,9 +1,13 @@
 #include "planet.hpp"
+#include "assert.h"
 #include "defs.h"
 #include "raylib.h"
 #include "utils.h"
+#include <algorithm>
+#include <cstring>
 #include <math.h>
 #include <stdarg.h>
+#include <vector>
 
 Color grassCl = {99 * 1.25, 171 * 1.25, 63 * 1.25, 255};
 Color swampcl = {47 * 1.25, 87 * 1.25, 83 * 1.25, 255};
@@ -121,10 +125,8 @@ Image genAtmosphere(i32 size, Color color) {
     return img;
 }
 
-void colorPerlin(Color* pixels, Image* img, i32 imgSize, Color c1, Color c2,
-                 Color c3) {
-    Color cl;
-    for (usize i = 0; i < imgSize * imgSize; i++) {
+/*void colorPerlin(Color* pixels, Image* img, i32 imgSize, Color c1, Color
+c2, Color c3) { Color cl; for (usize i = 0; i < imgSize * imgSize; i++) {
         i32 x = i % imgSize;
         i32 y = i / imgSize;
         usize diff;
@@ -147,6 +149,36 @@ void colorPerlin(Color* pixels, Image* img, i32 imgSize, Color c1, Color c2,
             cl = setColorShadow(c2, diff);
             ImageDrawPixel(img, x, y, cl);
         }
+    }
+}*/
+
+void colorPerlin(Color* pixels, Image* img, i32 imgSize,
+                 std::vector<Color> colors, std::vector<i32> thresholds) {
+    assert(colors.size() == thresholds.size() + 1 && "Invalid thresholds");
+
+    for (usize i = 0; i < imgSize * imgSize; i++) {
+        i32 x = i % imgSize;
+        i32 y = i / imgSize;
+        usize diff;
+        Color cl;
+
+        i32 r = pixels[i].r;
+        usize idx = std::min(
+            static_cast<usize>(std::distance(
+                thresholds.begin(),
+                std::lower_bound(thresholds.begin(), thresholds.end(), r))),
+            colors.size() - 1);
+
+        if (idx == 0) {
+            diff = thresholds[0] - r;
+        } else if (idx == thresholds.size()) {
+            diff = 255 - r;
+        } else {
+            diff = thresholds[idx] - r;
+        }
+
+        cl = setColorShadow(colors[idx], diff);
+        ImageDrawPixel(img, x, y, cl);
     }
 }
 
@@ -174,9 +206,17 @@ Planet::Planet(i32 imgSize, bool randomizeColors) {
         c3 = otherColors[1];
         atmoColor = normalizeColor(otherColors[2]);
     }
+    Color testColors[4];
+    GenerateAnalogousColors(c3, testColors, 4);
+    std::vector<Color> colors = {
+        c1,           c2, c3, testColors[0], testColors[1], testColors[2],
+        testColors[3]};
+    std::vector<i32> thresholds = {50, 100, 120, 160, 200, 230};
 
-    colorPerlin(imgPixels, &img, imgSize, c1, c2, c3);
-    colorPerlin(thumbnailPixels, &thumbnail, thumbSize, c1, c2, c3);
+    /*colorPerlin(imgPixels, &img, imgSize, c1, c2, c3);
+    colorPerlin(thumbnailPixels, &thumbnail, thumbSize, c1, c2, c3);*/
+    colorPerlin(imgPixels, &img, imgSize, colors, thresholds);
+    colorPerlin(thumbnailPixels, &thumbnail, thumbSize, colors, thresholds);
 
     applySphericalDistortion(&img);
     applySphericalDistortion(&thumbnail);
@@ -248,4 +288,12 @@ void Planet::draw(f32 scale) {
                   atmosSize};
 
     DrawTexturePro(atmosphere, srcA, destA, (v2){0, 0}, 0.0f, WHITE);
+}
+
+Planet::~Planet() {
+    UnloadTexture(texture);
+    UnloadTexture(atmosphere);
+    UnloadTexture(thumbnail);
+    UnloadTexture(thumbnailAtmosphere);
+    free(palette);
 }

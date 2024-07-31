@@ -1,10 +1,9 @@
+#include "PlanetSelect.hpp"
 #include "button.hpp"
 #include "expParticle.hpp"
 #include "fuelMeter.hpp"
-#include "gameobject.hpp"
 #include "globals.hpp"
 #include "particleSystem.hpp"
-#include "raylib.h"
 #include "slime.hpp"
 #include "slimeGhoul.hpp"
 #include "task.hpp"
@@ -66,11 +65,12 @@ void mapEnemyTypeToSpawnFunc(EnemyType type) {
 }
 
 void enterPlanet();
+void selectPlanet();
 
 void quitButtonFunc() { quit = true; }
 
 void initMainMenu() {
-    startButton = new Button(v2{200, 77}, startButtonT, enterPlanet);
+    startButton = new Button(v2{200, 77}, startButtonT, selectPlanet);
     settingsButton = new Button(v2{187, 141}, settingsButtonT, NULL);
     quitButton = new Button(v2{200, 206}, quitButtonT, quitButtonFunc);
 
@@ -116,15 +116,18 @@ void drawUI(void) {
     DrawText(TextFormat("%d", player->level), 294, 6, 10, WHITE);
 }
 
+void selectPlanet(void) {
+    destroyMainMenu();
+    new PlanetSelect(64, enterPlanet);
+    state = IN_SPACE;
+}
+
 void enterPlanet() {
     // eventually planets will be preloaded and
     // selected from a menu, for now we just generate one
 
-    currentPlanet = new Planet(64, true);
     currentTerrain = genPlanetTerrain(currentPlanet);
     state = ON_PLANET;
-
-    destroyMainMenu();
 }
 
 int main(void) {
@@ -167,7 +170,7 @@ int main(void) {
     quitButtonT = LoadTexture("assets/images/quitButton.png");
     mainBackground = LoadTexture("assets/images/mainMenu.png");
 
-    new FuelMeter(0, 0, 100);
+    // new FuelMeter(0, 0, 100);
 
     initMainMenu();
 
@@ -213,6 +216,9 @@ int main(void) {
 
             ExpParticle::drawAll();
             drawUI();
+
+            currentPlanet->pos = {200, 100};
+            // currentPlanet->draw(1);
             break;
         case GAME_OVER:
             break;

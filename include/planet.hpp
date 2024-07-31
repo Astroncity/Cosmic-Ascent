@@ -29,6 +29,7 @@ class Planet {
     Color* palette;
 
     Planet(i32 imgSize, bool randomizeColors);
+    ~Planet();
 
     void draw(f32 scale);
     void drawThumbnail(Vector2 pos);
