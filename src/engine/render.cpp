@@ -64,7 +64,7 @@ void removeRender(RenderData data) {
 void renderAll() {
     RenderNode* curr = renderHead;
     while (curr != NULL) {
-        curr->data.render();
+        if (curr->data.render != NULL) curr->data.render();
         curr = curr->next;
     }
 }
@@ -87,3 +87,12 @@ i32 getActiveRenderers() {
     }
     return count;
 }
+
+Renderable::Renderable(i32 renderPriority) {
+    this->renderPriority = renderPriority;
+    std::function<void()> rendFunc = std::bind(&Renderable::render, this);
+    renderData = {this, rendFunc, renderPriority};
+    addRender(renderData);
+}
+
+Renderable::~Renderable() { removeRender(renderData); }

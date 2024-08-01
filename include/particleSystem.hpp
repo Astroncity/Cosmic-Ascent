@@ -58,7 +58,7 @@ class ParticleSystem : public GameObject {
     f32 size;
     f32 speed;
 
-    static std::list<Particle*> particles;
+    std::list<Particle*> particles;
 
     ParticleSystem(v2 pos, f32 rate, f32 lifeTime, f32 size, f32 speed);
     void update() override;

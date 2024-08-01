@@ -30,20 +30,20 @@ i32 GameObject::getActiveGameObjects() {
 
 void test() { printf("test\n"); }
 
-GameObject::GameObject(const char* tag, i32 renderPriority) {
+GameObject::GameObject(const char* tag, i32 renderPriority)
+    : Renderable(renderPriority) {
     this->tag = tag;
     markedForDeletion = false;
     gameObjects.push_back(this);
-    this->renderPriority = renderPriority;
-    std::function<void()> rendFunc = std::bind(&GameObject::render, this);
-    // std::function<void()> rendFunc = test;
-    renderData = {this, rendFunc, renderPriority};
-    addRender(renderData);
 }
 
-GameObject::GameObject(const char* tag) {
+GameObject::GameObject(const char* tag) : Renderable(0) {
     this->tag = tag;
     markedForDeletion = false;
     gameObjects.push_back(this);
-    renderPriority = 0;
+}
+
+void GameObject::destroy() {
+    removeRender(renderData);
+    markedForDeletion = true;
 }

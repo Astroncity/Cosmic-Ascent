@@ -18,3 +18,13 @@ void renderAll();
 void removeRender(RenderData data);
 void renderDebug();
 i32 getActiveRenderers();
+
+class Renderable {
+  public:
+    i32 renderPriority;
+    RenderData renderData;
+
+    Renderable(i32 renderPriority);
+    ~Renderable();
+    virtual void render() = 0;
+};

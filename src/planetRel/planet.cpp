@@ -206,15 +206,12 @@ Planet::Planet(i32 imgSize, bool randomizeColors) {
         c3 = otherColors[1];
         atmoColor = normalizeColor(otherColors[2]);
     }
-    Color testColors[4];
-    GenerateAnalogousColors(c3, testColors, 4);
-    std::vector<Color> colors = {
-        c1,           c2, c3, testColors[0], testColors[1], testColors[2],
-        testColors[3]};
+    Color acs[4];
+    GenerateAnalogousColors(c3, acs, 4);
+    std::vector<Color> colors = {c1,     c2,     c3,    acs[0],
+                                 acs[1], acs[2], acs[3]};
     std::vector<i32> thresholds = {50, 100, 120, 160, 200, 230};
 
-    /*colorPerlin(imgPixels, &img, imgSize, c1, c2, c3);
-    colorPerlin(thumbnailPixels, &thumbnail, thumbSize, c1, c2, c3);*/
     colorPerlin(imgPixels, &img, imgSize, colors, thresholds);
     colorPerlin(thumbnailPixels, &thumbnail, thumbSize, colors, thresholds);
 

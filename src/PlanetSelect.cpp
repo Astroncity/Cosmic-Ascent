@@ -24,8 +24,7 @@ Rect PlanetSelect::getCollider() { return {0, 0, 0, 0}; }
 void PlanetSelect::update() { return; }
 
 void PlanetSelect::destroy() {
-    markedForDeletion = true;
-    removeRender(renderData);
+    GameObject::destroy();
     callback();
 }
 

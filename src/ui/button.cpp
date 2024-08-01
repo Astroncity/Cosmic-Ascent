@@ -14,10 +14,7 @@ void Button::render() {
 
 Rect Button::getCollider() { return {}; }
 
-void Button::destroy() {
-    removeRender(renderData);
-    markedForDeletion = true;
-}
+void Button::destroy() { GameObject::destroy(); }
 
 void Button::update() {
     if (destroyed) {

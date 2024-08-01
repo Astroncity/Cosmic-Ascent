@@ -17,10 +17,7 @@ static void init() {
     }
 }
 
-void SlimeProjectile::destroy() {
-    removeRender(renderData);
-    markedForDeletion = true;
-}
+void SlimeProjectile::destroy() { GameObject::destroy(); }
 
 Rect SlimeProjectile::getCollider() { return {}; }
 

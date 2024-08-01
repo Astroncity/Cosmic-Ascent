@@ -27,12 +27,10 @@ GameObject* createGameObject(const char* tag, void* obj,
                              void (*update)(void*));
 i32 getActiveGameObjects();*/
 
-class GameObject {
+class GameObject : public Renderable {
   public:
     const char* tag;
     bool markedForDeletion;
-    i32 renderPriority;
-    RenderData renderData;
 
     GameObject(const char* tag, i32 renderPriority);
     GameObject(const char* tag);
@@ -40,7 +38,6 @@ class GameObject {
     virtual Rect getCollider() = 0;
     virtual void update() = 0;
     virtual void destroy() = 0;
-    virtual void render() = 0;
 
     static void runAll();
     static std::list<GameObject*> gameObjects;

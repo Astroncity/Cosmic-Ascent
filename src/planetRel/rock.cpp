@@ -49,6 +49,7 @@ void Rock::render() {
 }
 
 void Rock::destroy() {
+    GameObject::destroy();
     if (!IsSoundReady(rockBreakfx)) {
         rockBreakfx = LoadSound("assets/sounds/rockBreakfx.wav");
         SetSoundVolume(rockBreakfx, 0.45);
@@ -57,9 +58,7 @@ void Rock::destroy() {
 
     ExpParticle::batchCreate((Vector2){rect.x, rect.y}, cl, ROCK_EXP, 10);
 
-    removeRender(renderData);
     delete healthBar;
-    markedForDeletion = true;
 }
 
 bool Rock::hit() {

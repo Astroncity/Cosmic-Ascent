@@ -57,9 +57,8 @@ char* strdup(const char* str) {
 void FlashingText::render() { DrawTextEx(font, text, pos, size, 1, color); }
 Rect FlashingText::getCollider() { return {}; }
 void FlashingText::destroy() {
-    removeRender(renderData);
+    GameObject::destroy();
     free((char*)text);
-    markedForDeletion = true;
 }
 
 void FlashingText::update() {

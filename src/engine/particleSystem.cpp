@@ -1,7 +1,5 @@
 #include "particleSystem.hpp"
 
-std::list<Particle*> ParticleSystem::particles;
-
 void ParticleSystem::emit() {
     v2 vel = {(f32)rand() / RAND_MAX * 2 - 1,
               (f32)rand() / RAND_MAX * 2 - 1};
@@ -53,5 +51,11 @@ ParticleSystem::ParticleSystem(v2 pos, f32 rate, f32 lifeTime, f32 size,
     this->timer = 0;
 }
 
-void ParticleSystem::destroy() { return; }
+void ParticleSystem::destroy() {
+    for (auto it = particles.begin(); it != particles.end(); it++) {
+        delete *it;
+    }
+    particles.clear();
+    GameObject::destroy();
+}
 Rect ParticleSystem::getCollider() { return {}; }

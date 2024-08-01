@@ -1,21 +1,16 @@
 #pragma once
 #include "defs.h"
 #include "raylib.h"
+#include "render.hpp"
+#include <string>
 
-/*typedef struct Planet {
-    Texture2D texture;
-    Texture2D atmosphere;
-    Texture2D thumbnail;
-    Texture2D thumbnailAtmosphere;
-    Vector2 pos;
-    i32 size;
-    Color terrainColor;
-    Color* palette;
-} Planet;
+class Label : public Renderable {
+  public:
+    static Texture2D background;
+    std::string text;
 
-Planet* genPlanet(i32 imgSize, bool randomizeColors);
-void drawPlanet(Planet* planet, f32 scale);
-void drawPlanetThumbnail(Vector2 pos, Planet* planet);*/
+    Label(std::string text);
+};
 
 class Planet {
   public:
@@ -27,6 +22,8 @@ class Planet {
     i32 size;
     Color terrainColor;
     Color* palette;
+    bool hovered;
+    bool visited;
 
     Planet(i32 imgSize, bool randomizeColors);
     ~Planet();

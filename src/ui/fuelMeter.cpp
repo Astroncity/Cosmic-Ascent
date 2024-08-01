@@ -45,14 +45,7 @@ void FuelMeter::update() {
     }
 }
 
-void FuelMeter::destroy() {
-    UnloadTexture(fuelBase);
-    UnloadTexture(fuelBar);
-    UnloadTexture(lightGreen);
-    UnloadTexture(lightYellow);
-    loaded = false;
-    markedForDeletion = true;
-}
+void FuelMeter::destroy() { GameObject::destroy(); }
 
 Rect FuelMeter::getCollider() { return rect; }
 

@@ -44,10 +44,9 @@ void Slime::handleCollision() {
 }
 
 void Slime::destroy() {
+    GameObject::destroy();
     ExpParticle::batchCreate((v2){rect.x, rect.y}, GREEN, 10, 5);
     delete healthBar;
-    markedForDeletion = true;
-    removeRender(renderData);
 }
 
 void Slime::update() {
